@@ -1,0 +1,143 @@
+* {
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+:root {
+    --primary-green: #16a34a;
+    --primary-green-dark: #15803d;
+    --primary-green-light: #22c55e;
+    --emerald: #10b981;
+    --emerald-dark: #059669;
+}
+
+body {
+    background-color: #f8fafc;
+    /* Fundo gradiente sutil */
+    /* background-image: linear-gradient(to bottom, #f8fafc, #f1f5f9); */
+    color: #1f2937;
+}
+
+/* Efeito "Glassmorphism" para o painel de filtros */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid rgba(209, 213, 219, 0.5); /* Borda sutil */
+}
+
+/* Cor de destaque principal */
+.highlight-text { color: var(--emerald); }
+.highlight-bg { background-color: var(--emerald); }
+.highlight-bg-dark-hover:hover { background-color: var(--emerald-dark); }
+.highlight-border { border-color: var(--emerald); }
+.highlight-ring-focus:focus {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+    border-color: var(--emerald);
+}
+
+/* Customizando a barra de pesquisa e selects */
+#search-input:focus,
+.filter-select:focus {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+    border-color: var(--emerald);
+}
+
+/* Ícone customizado para os selects */
+.filter-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+
+/* Botões de tag */
+.tag-filter-btn[data-active="true"] {
+    background-color: var(--emerald-dark); /* #059669 */
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+/* Estilo para o modal */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+/* Animações de entrada do Modal */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes slideInUp {
+    from { transform: translateY(30px) scale(0.98); opacity: 0.5; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.modal.hidden { display: none; }
+.modal-content { animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.modal-backdrop { animation: fadeIn 0.2s ease-out; }
+
+/* Barra de rolagem customizada */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* gray-300 */
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; /* gray-400 */
+}
+
+/* Animação para cards de planta aparecendo */
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.plant-card-enter {
+    animation: cardFadeIn 0.4s ease-out both;
+}
+
+/* Estilo de "selecionado" para o card */
+.plant-card[data-selected="true"] {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 3px var(--emerald);
+    border-color: var(--emerald);
+}
+
+/* Animação de "pulso" para contadores */
+@keyframes pulse-sm {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .7; }
+}
+.pulse-highlight {
+    animation: pulse-sm 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Esconde o painel de projeto em telas pequenas */
+@media (max-width: 1024px) {
+    #project-panel {
+        display: none;
+    }
+    #main-content {
+        /* Ocupa a tela inteira se o painel estiver escondido */
+        width: 100%;
+    }
+}
