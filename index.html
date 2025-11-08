@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flora Nativa Ilhéus - Catálogo de Plantas Nativas</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +22,7 @@
                 <h1 class="text-2xl font-bold text-gray-900">Catálogo Flora Nativa</h1>
                 <p class="text-md text-gray-500">Análise de Banco de Dados de Plantas de Ilhéus-BA</p>
             </div>
-            </div>
+        </div>
     </header>
 
     <nav class="glass-panel sticky top-[85px] z-10 shadow-md">
@@ -88,8 +88,7 @@
                 </div>
                 
                 <div id="plant-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    <p class="text-gray-500 col-span-full text-center py-10">Carregando banco de dados...</p>
-                </div>
+                    </div>
             </div>
 
             <aside class="w-full lg:w-1/4">
@@ -98,9 +97,8 @@
                     <p class="text-sm text-gray-500 mb-4" id="project-plant-count">0 plantas</p>
 
                     <div id="project-empty-state" class="text-center py-6">
-                        <p class="text-gray-500">Adicione plantas ao seu projeto clicando no botão '+' nos cards.</p>
+                        <p class="text-gray-500">Adicione plantas ao seu projeto...</p>
                     </div>
-
                     <div id="project-list" class="space-y-3 max-h-60 overflow-y-auto pr-2">
                         </div>
 
@@ -120,7 +118,6 @@
 
     <div id="plant-modal" class="modal hidden">
         <div id="modal-backdrop" class="modal-backdrop"></div>
-        
         <div class="modal-content">
             <div class="modal-header">
                 <div>
@@ -131,32 +128,23 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-
             <div class="modal-body" id="modal-content-scrollable">
-                <p id="modal-descricao" class="text-gray-700 text-base">Descrição completa da planta...</p>
-                
+                <p id="modal-descricao" class="text-gray-700 text-base">...</p>
                 <hr class="my-4">
-
                 <div id="modal-details" class="grid grid-cols-2 md:grid-cols-3 gap-4">
                     </div>
-
                 <hr class="my-4">
-
                 <div>
                     <h4 class="text-sm font-medium text-gray-700 mb-3">Tags:</h4>
                     <div id="modal-tags" class="flex flex-wrap gap-2">
                         </div>
                 </div>
-
                 <hr class="my-4">
-
                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <h4 class="text-lg font-semibold text-gray-800 mb-3">Cuidados Específicos (IA)</h4>
-                    <p class="text-sm text-gray-600 mb-4">Gerar um plano de cuidados personalizado para esta planta no clima de Ilhéus, BA.</p>
                     <button id="ia-care-btn" class="highlight-bg highlight-bg-dark-hover w-full flex items-center justify-center px-4 py-2 text-white rounded-lg font-medium transition-colors duration-200">
                         Gerar Plano de Cuidados
                     </button>
-                    
                     <div id="ia-result-container" class="mt-4 p-4 bg-white rounded-md border border-gray-200 text-gray-700" style="display: none;">
                         </div>
                 </div>
