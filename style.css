@@ -1,0 +1,334 @@
+/* STYLE.CSS (REFATORADO - TEMA "MATA ATLÂNTICA NOTURNA")
+    Baseado no protótipo de 08/11/2025
+*/
+
+/* --- 1. VARIÁVEIS GLOBAIS (RAIZ) --- */
+:root {
+    /* Paleta de Cores (Baseado no Protótipo) */
+    --bg-dark-deep: #0D1B13;       /* Fundo principal (Verde-negro) */
+    --bg-dark-secondary: #132A1C; /* Fundo de cards/modals (Verde-escuro) */
+    --accent-primary: #1EE476;   /* Verde vibrante (Botões, Títulos) */
+    --accent-secondary: #9AFBCA; /* Verde pálido (Subtítulos, bordas) */
+    --text-light: #F0FFF8;       /* Texto principal (Branco-esverdeado) */
+    --text-muted: #8B9C92;       /* Texto secundário (Cinza-esverdeado) */
+    --border-color: #2A5A3F;     /* Bordas de painéis e inputs */
+}
+
+/* --- 2. RESET E PADRÕES GLOBAIS --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark-deep);
+    color: var(--text-light);
+    overflow-y: scroll; /* Evita o pulo do layout quando o modal abre */
+}
+
+/* --- 3. COMPONENTES PRINCIPAIS --- */
+
+header {
+    /* O cabeçalho no protótipo é fixo e opaco */
+    background-color: var(--bg-dark-deep);
+    border-bottom: 1px solid var(--border-color);
+}
+
+h1 { color: var(--accent-primary); }
+h2, h3, h4 { color: var(--text-light); }
+p, span, label { color: var(--text-muted); }
+
+/* --- 4. PAINEL DE FILTROS (NAV) --- */
+/* Substitui o .glass-panel por um painel escuro, como no protótipo */
+nav.glass-panel {
+    background: rgba(13, 27, 19, 0.85); /* Fundo escuro com leve transparência */
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid var(--border-color);
+    border-top: none; /* A borda já está no header */
+}
+
+/* Inputs e Selects (Tema Escuro) */
+input[type="text"],
+select.filter-select {
+    background-color: var(--bg-dark-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-light);
+    border-radius: 0.5rem; /* 8px */
+}
+input[type="text"]:focus,
+select.filter-select:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(30, 228, 118, 0.3); /* Sombra de foco */
+    outline: none;
+}
+input[type="text"]::placeholder {
+    color: var(--text-muted);
+}
+select.filter-select option {
+    background-color: var(--bg-dark-secondary);
+    color: var(--text-light);
+}
+
+/* --- 5. BOTÕES (TAGS E DESTAQUES) --- */
+.tag-filter-btn {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px; /* pill */
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.tag-filter-btn:hover {
+    border-color: var(--accent-secondary);
+    color: var(--accent-secondary);
+}
+/* Estado ativo da tag */
+.tag-active,
+.tag-filter-btn[data-active="true"] {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: var(--bg-dark-deep); /* Alto contraste */
+    font-weight: 700;
+}
+
+/* Botões de Ação Principal (IA, Adicionar) */
+.highlight-bg {
+    background-color: var(--accent-primary);
+    color: var(--bg-dark-deep);
+    font-weight: 700;
+}
+.highlight-bg-dark-hover:hover {
+    background-color: var(--accent-secondary);
+    color: var(--bg-dark-deep);
+}
+.ia-project-btn {
+    width: 100%;
+    background-color: var(--bg-dark-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-light);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.ia-project-btn:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+.ia-project-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* --- 6. CARDS DE PLANTA --- */
+.plant-card {
+    background-color: var(--bg-dark-secondary);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.plant-card:hover {
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 20px rgba(30, 228, 118, 0.15); /* "Glow" sutil do protótipo */
+    transform: translateY(-4px);
+}
+/* Feedback de Card Selecionado */
+.plant-card[data-selected="true"] {
+    border-color: var(--accent-primary);
+    transform: scale(1.03);
+    box-shadow: 0 0 25px rgba(30, 228, 118, 0.3);
+}
+
+/* Botão de Adicionar/Remover no Card */
+.add-btn {
+    background-color: var(--accent-primary);
+    color: var(--bg-dark-deep);
+}
+/* "Remover" (botão vermelho/laranja) */
+.add-btn.remove-btn {
+    background-color: #E53E3E; /* Vermelho (Tailwind 'red-600') */
+    color: white;
+}
+.add-btn.remove-btn:hover {
+    background-color: #C53030; /* Vermelho mais escuro */
+}
+
+/* Tags de Specs (Luz, Água, etc.) */
+.spec-tag {
+    /* Usamos as cores do tema escuro, não as do Tailwind light */
+    padding: 0.25rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 0.25rem;
+}
+.spec-tag.bg-blue-100 { background-color: #1E3A8A; color: #DBEAFE; } /* Azul escuro */
+.spec-tag.bg-green-100 { background-color: #064E3B; color: #D1FAE5; } /* Verde escuro */
+.spec-tag.bg-yellow-100 { background-color: #78350F; color: #FEF3C7; } /* Amarelo/Laranja escuro */
+
+/* Botão "Ver Detalhes" */
+.details-btn {
+    background-color: rgba(255, 255, 255, 0.03); /* Fundo sutil */
+    color: var(--accent-secondary);
+    font-weight: 600;
+}
+.details-btn:hover {
+    background-color: rgba(30, 228, 118, 0.1);
+    color: var(--accent-primary);
+}
+
+/* --- 7. PAINEL DE PROJETO (LATERAL) --- */
+aside .bg-white { /* Substitui o bg-white do HTML */
+    background-color: var(--bg-dark-secondary);
+    border-color: var(--border-color);
+}
+aside #project-list .bg-white { /* Itens da lista */
+    background-color: var(--bg-dark-deep);
+}
+aside h3 { color: var(--accent-primary); }
+aside #project-empty-state p { color: var(--text-muted); }
+aside p, aside span { color: var(--text-light); }
+aside p.text-gray-500 { color: var(--text-muted); }
+
+/* --- 8. MODAL (Tema Escuro) --- */
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(10, 20, 15, 0.8);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+.modal-content {
+    background-color: var(--bg-dark-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem; /* 12px */
+    z-index: 51;
+    width: 100%;
+    max-width: 48rem; /* 768px */
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+}
+.modal-header {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    border-bottom: 1px solid var(--border-color);
+}
+.modal-header h2 { color: var(--accent-primary); }
+.modal-header p { color: var(--accent-secondary); }
+.modal-header button { color: var(--text-muted); }
+.modal-header button:hover { color: var(--text-light); }
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+/* Detalhes (Luz, Água...) no Modal */
+.spec-item {
+    background-color: var(--bg-dark-deep);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+}
+.spec-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+.spec-value {
+    display: block;
+    font-size: 1rem;
+    color: var(--text-light);
+    font-weight: 600;
+}
+/* Tags no Modal */
+.tag {
+    background-color: var(--border-color);
+    color: var(--accent-secondary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+/* Bloco de IA no Modal */
+.modal-body .bg-gray-50 {
+    background-color: var(--bg-dark-deep);
+    border-color: var(--border-color);
+}
+.modal-body #ia-result-container {
+    background-color: var(--bg-dark-secondary);
+    border-color: var(--border-color);
+}
+/* Regras de Markdown (Negrito, Títulos) */
+.modal-body p { color: var(--text-light); }
+.modal-body h4 { color: var(--accent-secondary); margin-top: 1rem; }
+.modal-body strong { color: var(--accent-secondary); }
+.modal-body ul { margin-top: 0.5rem; }
+.modal-body li { color: var(--text-muted); }
+
+/* --- 9. ANIMAÇÕES (Mantidas) --- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.modal.hidden { display: none; }
+/* Animação de entrada/saída do Modal */
+.modal-content { animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.modal-backdrop { animation: fadeIn 0.2s ease-out; }
+.modal:not(.hidden).modal-active .modal-content { animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.modal:not(.hidden).modal-active .modal-backdrop { animation: fadeIn 0.2s ease-out; }
+/* Animação para modal-active (saída) */
+.modal.modal-active:not(.hidden) { animation: fadeOut 0.3s ease-out forwards; }
+.modal.modal-active:not(.hidden) .modal-content { animation: slideOutDown 0.3s cubic-bezier(0.7, 0, 0.84, 0) forwards; }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes slideOutDown {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(30px); }
+}
+
+/* Animação para cards de planta aparecendo */
+@keyframes cardFadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.plant-card-enter {
+    animation: cardFadeIn 0.4s ease-out both;
+}
+
+
+/* --- 10. BARRA DE ROLAGEM (Tema Escuro) --- */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-dark-deep);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-color); /* Tom médio */
+    border-radius: 10px;
+    border: 2px solid var(--bg-dark-deep); /* Espaçamento */
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted); /* Mais claro no hover */
+}
