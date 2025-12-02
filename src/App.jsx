@@ -1,35 +1,1135 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useMemo } from 'react';
+import { 
+  Leaf, 
+  Sun, 
+  Droplets, 
+  Search, 
+  Plus, 
+  Minus, 
+  Trash2, 
+  MapPin, 
+  Wind,
+  Sprout,
+  ArrowRight,
+  Sparkles,
+  Loader,
+  Activity,
+  Umbrella, 
+  Home,     
+  Maximize,
+  Globe, 
+  AlertTriangle,
+  Flower,
+  X,
+  Filter,
+  PawPrint, // Adicionado para corrigir o erro
+  Baby,     // Adicionado para corrigir o erro
+  Smile     // Adicionado
+} from 'lucide-react';
 
-function App() {
-  const [count, setCount] = useState(0)
+// --- CONFIGURAÇÃO DE IMAGENS ---
+const AUTOMATIC_IMAGE_HOST = "https://raw.githubusercontent.com/gfdbairrosegc/catalogo-flora-ilheus/main/"; 
+
+// --- DATABASE COMPLETO ---
+const plantData = [
+    {
+        "Nome": "Alamanda Amarela",
+        "Nome Científico": "Allamanda cathartica",
+        "Descrição": "Trepadeira vigorosa com flores amarelas grandes. Cobre cercas rapidamente.",
+        "Altura": "Trepadeira",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Exótica",
+        "Grupo": "Trepadeira",
+        "Frutifera": false,
+        "Tags": "Trepadeira; Fácil de Cuidar; Tropical; Floração Ornamental; Crescimento Rápido; Tóxica"
+    },
+    {
+        "Nome": "Antúrio Vermelho",
+        "Nome Científico": "Anthurium andraeanum",
+        "Descrição": "Clássico de sombra. Flores duráveis e folhagem brilhante.",
+        "Altura": "0.5 m",
+        "Luz Solar": "Meia Sombra",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Apartamento/Varanda", "Quintal (Pequeno)"],
+        "Dificuldade": "Moderada",
+        "Origem": "Exótica",
+        "Grupo": "Herbácea",
+        "Frutifera": false,
+        "Tags": "Vaso; Sombra; Floração Longa; Tóxica"
+    },
+    {
+        "Nome": "Araçá-amarelo",
+        "Nome Científico": "Psidium cattleianum",
+        "Descrição": "Arbusto frutífero resistente. Frutos parecem mini goiabas.",
+        "Altura": "3-5 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Arbusto",
+        "Frutifera": true,
+        "Tags": "Frutífera; Atrai Pássaros; Resistente"
+    },
+    {
+        "Nome": "Aroeira-vermelha",
+        "Nome Científico": "Schinus terebinthifolia",
+        "Descrição": "Pimenta rosa. Rústica, atrai pássaros e tem frutos ornamentais.",
+        "Altura": "6-9 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": true,
+        "Tags": "Pimenta Rosa; Rústica; Atrai Pássaros"
+    },
+    {
+        "Nome": "Bambu Mossô",
+        "Nome Científico": "Phyllostachys pubescens",
+        "Descrição": "Bambu de grande porte, visual escultural e moderno para grandes áreas.",
+        "Altura": "10-15 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Alta",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Moderada",
+        "Origem": "Exótica",
+        "Grupo": "Arbusto",
+        "Frutifera": false,
+        "Tags": "Barreira Visual; Crescimento Rápido"
+    },
+    {
+        "Nome": "Bromélia Imperial",
+        "Nome Científico": "Alcantarea imperialis",
+        "Descrição": "Gigante das bromélias. Majestosa, tolera sol pleno e vira ponto focal no jardim.",
+        "Altura": "1.5 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Herbácea",
+        "Frutifera": false,
+        "Tags": "Escultural; Nativa do Brasil"
+    },
+    {
+        "Nome": "Bromélia Porto Seguro",
+        "Nome Científico": "Acanthostachys strobilacea",
+        "Descrição": "Folhas finas e pendentes com frutos alaranjados. Ótima para cestas suspensas.",
+        "Altura": "0.3 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Apartamento/Varanda"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Herbácea",
+        "Frutifera": false,
+        "Tags": "Pendente; Nativa do Brasil; Tolerante à Maresia"
+    },
+    {
+        "Nome": "Calathea-zebra",
+        "Nome Científico": "Goeppertia zebrina",
+        "Descrição": "Folhas zebradas aveludadas. Exige sombra e umidade constante.",
+        "Altura": "0.8 m",
+        "Luz Solar": "Sombra",
+        "Necessidade de Água": "Alta",
+        "Espacos": ["Apartamento/Varanda", "Quintal (Pequeno)"],
+        "Dificuldade": "Difícil",
+        "Origem": "Nativa",
+        "Grupo": "Herbácea",
+        "Frutifera": false,
+        "Tags": "Folhagem Ornamental; Sombra; Delicada"
+    },
+    {
+        "Nome": "Clúsia",
+        "Nome Científico": "Clusia fluminensis",
+        "Descrição": "Folhas rígidas em forma de gota. Excelente para cercas vivas no litoral.",
+        "Altura": "3-4 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Arbusto",
+        "Frutifera": false,
+        "Tags": "Cerca Viva; Nativa do Brasil; Alta Resistência"
+    },
+    {
+        "Nome": "Costela-de-Adão",
+        "Nome Científico": "Monstera deliciosa",
+        "Descrição": "Folhagem escultural para áreas sombreadas. Muito usada em design de interiores.",
+        "Altura": "2-3 m",
+        "Luz Solar": "Sombra",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Apartamento/Varanda", "Quintal (Pequeno)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Exótica",
+        "Grupo": "Herbácea",
+        "Frutifera": true,
+        "Tags": "Folhagem Ornamental; Sombra; Tóxica"
+    },
+    {
+        "Nome": "Feijão-da-praia",
+        "Nome Científico": "Sophora tomentosa",
+        "Descrição": "Arbusto de restinga com flores amarelas e folhagem prateada.",
+        "Altura": "1-3 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Arbusto",
+        "Frutifera": false,
+        "Tags": "Tolerante à Maresia; Alta Resistência"
+    },
+    {
+        "Nome": "Grama Amendoim",
+        "Nome Científico": "Arachis repens",
+        "Descrição": "Forração com flores amarelas que nutre o solo. Não precisa de poda! Ideal para taludes, mas não aguenta pisoteio.",
+        "Altura": "0.2 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Forração",
+        "Frutifera": false,
+        "Tags": "Forração; Flores Amarelas; Sem Poda"
+    },
+    {
+        "Nome": "Grama Coreana",
+        "Nome Científico": "Zoysia tenuifolia",
+        "Descrição": "Folhas muito finas que formam 'montinhos' ornamentais. Crescimento lento, ideal para jardins japoneses.",
+        "Altura": "0.1 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Quintal (Pequeno)"],
+        "Dificuldade": "Moderada",
+        "Origem": "Exótica",
+        "Grupo": "Gramado",
+        "Frutifera": false,
+        "Tags": "Ornamental; Textura Fina; Entre Pedras"
+    },
+    {
+        "Nome": "Grama Esmeralda",
+        "Nome Científico": "Zoysia japonica",
+        "Descrição": "O clássico gramado denso. Resistente a pisoteio, forma um tapete perfeito ao sol. Exige poda frequente.",
+        "Altura": "0.1 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Dificuldade": "Moderada",
+        "Origem": "Exótica",
+        "Grupo": "Gramado",
+        "Frutifera": false,
+        "Tags": "Forração; Resistente ao Pisoteio"
+    },
+    {
+        "Nome": "Grama Preta",
+        "Nome Científico": "Ophiopogon japonicus",
+        "Descrição": "Não é uma grama verdadeira, mas uma touceira ornamental escura. Perfeita para bordas e áreas de sombra total.",
+        "Altura": "0.2 m",
+        "Luz Solar": "Sombra",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Quintal (Pequeno)", "Apartamento/Varanda"],
+        "Dificuldade": "Fácil",
+        "Origem": "Exótica",
+        "Grupo": "Forração",
+        "Frutifera": false,
+        "Tags": "Ornamental; Sombra; Bordadura"
+    },
+    {
+        "Nome": "Grama Santo Agostinho",
+        "Nome Científico": "Stenotaphrum secundatum",
+        "Descrição": "A rainha do litoral. Folhas mais largas e lisas, extremamente resistente à maresia e tolera bem a meia-sombra.",
+        "Altura": "0.15 m",
+        "Luz Solar": "Meia Sombra",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Jardim (Grande)", "Quintal (Pequeno)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Exótica",
+        "Grupo": "Gramado",
+        "Frutifera": false,
+        "Tags": "Gramado; Litoral; Resistente à Maresia"
+    },
+    {
+        "Nome": "Grama São Carlos",
+        "Nome Científico": "Axonopus compressus",
+        "Descrição": "Folhas largas e verde intenso. A melhor opção para áreas úmidas ou sombreadas onde outras gramas falham.",
+        "Altura": "0.15 m",
+        "Luz Solar": "Meia Sombra",
+        "Necessidade de Água": "Alta",
+        "Espacos": ["Jardim (Grande)", "Quintal (Pequeno)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Gramado",
+        "Frutifera": false,
+        "Tags": "Gramado; Sombra; Áreas Úmidas"
+    },
+    {
+        "Nome": "Grumixama",
+        "Nome Científico": "Eugenia brasiliensis",
+        "Descrição": "Cereja brasileira. Frutos deliciosos e copa ornamental.",
+        "Altura": "5-10 m",
+        "Luz Solar": "Meia Sombra",
+        "Necessidade de Água": "Alta",
+        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Dificuldade": "Moderada",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": true,
+        "Tags": "Frutífera; Atrai Pássaros; Sombra"
+    },
+    {
+        "Nome": "Guapuruvu",
+        "Nome Científico": "Schizolobium parahyba",
+        "Descrição": "Crescimento explosivo. Tronco reto e flores amarelas no alto.",
+        "Altura": "20-30 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Alta",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Crescimento Rápido; Ornamental"
+    },
+    {
+        "Nome": "Helicônia Papagaio",
+        "Nome Científico": "Heliconia psittacorum",
+        "Descrição": "Planta tropical de floração exuberante. Perfeita para renques junto a muros.",
+        "Altura": "1-2 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Alta",
+        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Exótica",
+        "Grupo": "Herbácea",
+        "Frutifera": false,
+        "Tags": "Tropical; Atrai Beija-flores; Floração Ornamental"
+    },
+    {
+        "Nome": "Ipê-amarelo",
+        "Nome Científico": "Handroanthus chrysotrichus",
+        "Descrição": "Símbolo do Brasil. Floração espetacular no inverno quando perde as folhas.",
+        "Altura": "8-15 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Símbolo do Brasil; Floração Ornamental; Decídua"
+    },
+    {
+        "Nome": "Ipê-branco",
+        "Nome Científico": "Handroanthus roseoalbus",
+        "Descrição": "Floração branca efêmera e delicada. Porte menor que outros ipês.",
+        "Altura": "7-16 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Floração Efêmera; Ornamental"
+    },
+    {
+        "Nome": "Ipê-roxo",
+        "Nome Científico": "Handroanthus impetiginosus",
+        "Descrição": "Espetáculo roxo no inverno. Ideal para calçadas se houver espaço.",
+        "Altura": "8-12 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Floração Ornamental; Inverno"
+    },
+    {
+        "Nome": "Ixora Vermelha",
+        "Nome Científico": "Ixora coccinea",
+        "Descrição": "Arbusto muito florífero e resistente, ideal para cercas vivas baixas.",
+        "Altura": "1-2 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Exótica",
+        "Grupo": "Arbusto",
+        "Frutifera": false,
+        "Tags": "Cerca Viva; Tolerante à Maresia; Atrai Borboletas"
+    },
+    {
+        "Nome": "Jasmim-Manga",
+        "Nome Científico": "Plumeria rubra",
+        "Descrição": "Árvore suculenta de flores perfumadas. Resistente à seca e maresia.",
+        "Altura": "3-5 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Exótica",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Escultural; Tolerante à Maresia; Flores Perfumadas; Tóxica"
+    },
+    {
+        "Nome": "Jatobá",
+        "Nome Científico": "Hymenaea courbaril",
+        "Descrição": "Árvore de grande porte com frutos de casca dura e polpa farinácea.",
+        "Altura": "15-30 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": true,
+        "Tags": "Frutífera; Uso de Madeira"
+    },
+    {
+        "Nome": "Jequitibá-rosa",
+        "Nome Científico": "Cariniana legalis",
+        "Descrição": "O gigante da floresta. Árvore monumental para grandes espaços e parques.",
+        "Altura": "30-50 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Moderada",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Sombra; Símbolo da Mata Atlântica; Porte Monumental"
+    },
+    {
+        "Nome": "Maranta Tricolor",
+        "Nome Científico": "Maranta leuconeura var. erythroneura",
+        "Descrição": "Nervuras vermelhas vibrantes sobre fundo verde escuro. Joia da mata.",
+        "Altura": "0.3 m",
+        "Luz Solar": "Sombra",
+        "Necessidade de Água": "Alta",
+        "Espacos": ["Apartamento/Varanda"],
+        "Dificuldade": "Difícil",
+        "Origem": "Nativa",
+        "Grupo": "Herbácea",
+        "Frutifera": false,
+        "Tags": "Folhagem Ornamental; Sombra"
+    },
+    {
+        "Nome": "Maranta-pavão",
+        "Nome Científico": "Maranta leuconeura var. kerchoveana",
+        "Descrição": "Folhas com manchas que lembram penas de pavão. Ótima para forração em sombra.",
+        "Altura": "0.3 m",
+        "Luz Solar": "Sombra",
+        "Necessidade de Água": "Alta",
+        "Espacos": ["Apartamento/Varanda", "Quintal (Pequeno)"],
+        "Dificuldade": "Difícil",
+        "Origem": "Nativa",
+        "Grupo": "Herbácea",
+        "Frutifera": false,
+        "Tags": "Folhagem Ornamental; Sombra; Forração"
+    },
+    {
+        "Nome": "Orquídea Cattleya",
+        "Nome Científico": "Cattleya schofieldiana",
+        "Descrição": "Orquídea epífita com flores grandes e perfumadas. Exige cuidados específicos.",
+        "Altura": "0.3 m",
+        "Luz Solar": "Meia Sombra",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Apartamento/Varanda"],
+        "Dificuldade": "Difícil",
+        "Origem": "Nativa",
+        "Grupo": "Herbácea",
+        "Frutifera": false,
+        "Tags": "Floração Ornamental; Epífita"
+    },
+    {
+        "Nome": "Orquídea-da-praia",
+        "Nome Científico": "Epidendrum fulgens",
+        "Descrição": "Orquídea terrestre resistente que cresce na areia. Flores laranja vibrantes.",
+        "Altura": "0.6 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Apartamento/Varanda", "Quintal (Pequeno)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Herbácea",
+        "Frutifera": false,
+        "Tags": "Tolerante à Maresia; Floração Ornamental"
+    },
+    {
+        "Nome": "Paineira-rosa",
+        "Nome Científico": "Ceiba speciosa",
+        "Descrição": "Tronco bojudo com espinhos e flores rosa espetaculares.",
+        "Altura": "20-30 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Floração Ornamental; Decídua"
+    },
+    {
+        "Nome": "Palmeira Areca",
+        "Nome Científico": "Dypsis lutescens",
+        "Descrição": "Palmeira de múltiplos caules, muito usada para cerca viva e privacidade.",
+        "Altura": "3-6 m",
+        "Luz Solar": "Meia Sombra",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Exótica",
+        "Grupo": "Palmeira",
+        "Frutifera": false,
+        "Tags": "Privacidade; Tropical; Purifica o Ar"
+    },
+    {
+        "Nome": "Palmito-juçara",
+        "Nome Científico": "Euterpe edulis",
+        "Descrição": "Palmeira elegante e ameaçada. Produz frutos que atraem muitos pássaros.",
+        "Altura": "10-15 m",
+        "Luz Solar": "Meia Sombra",
+        "Necessidade de Água": "Alta",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Moderada",
+        "Origem": "Nativa",
+        "Grupo": "Palmeira",
+        "Frutifera": true,
+        "Tags": "Ameaçada; Frutífera; Atrai Pássaros"
+    },
+    {
+        "Nome": "Pau-brasil",
+        "Nome Científico": "Paubrasilia echinata",
+        "Descrição": "Árvore histórica com tronco espinhoso e flores amarelas perfumadas.",
+        "Altura": "10-15 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Moderada",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Símbolo do Brasil; Histórica"
+    },
+    {
+        "Nome": "Pau-ferro",
+        "Nome Científico": "Caesalpinia ferrea",
+        "Descrição": "Tronco marmorizado belíssimo. Copa ampla que fornece sombra leve.",
+        "Altura": "8-15 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Tronco Ornamental; Uso de Madeira; Sombra"
+    },
+    {
+        "Nome": "Pitanga",
+        "Nome Científico": "Eugenia uniflora",
+        "Descrição": "Frutífera clássica. Aceita poda e pode ser mantida como arbusto.",
+        "Altura": "3-5 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Arbusto",
+        "Frutifera": true,
+        "Tags": "Frutífera; Atrai Pássaros; Cerca Viva"
+    },
+    {
+        "Nome": "Quaresmeira",
+        "Nome Científico": "Pleroma granulosum",
+        "Descrição": "Floração roxa intensa duas vezes ao ano. Ótima para calçadas (sem fiação).",
+        "Altura": "8-12 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Floração Ornamental; Calçada"
+    },
+    {
+        "Nome": "Sibipiruna",
+        "Nome Científico": "Caesalpinia peltophoroides",
+        "Descrição": "Copa ampla e floração amarela. Muito usada em arborização urbana.",
+        "Altura": "10-15 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Jardim (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Arborização Urbana; Floração Ornamental; Sombra"
+    },
+    {
+        "Nome": "Suculenta Jade",
+        "Nome Científico": "Crassula ovata",
+        "Descrição": "Planta robusta e de baixíssima manutenção. Parece uma mini árvore.",
+        "Altura": "0.5 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Apartamento/Varanda"],
+        "Dificuldade": "Fácil",
+        "Origem": "Exótica",
+        "Grupo": "Suculenta",
+        "Frutifera": false,
+        "Tags": "Baixa Manutenção; Tolerante à Maresia; Alta Resistência"
+    }
+]
+// --- HELPER FUNCTIONS ---
+
+const getAutomaticImage = (plantName) => {
+    if (!AUTOMATIC_IMAGE_HOST) return null;
+    const cleanName = plantName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''); 
+    return `${AUTOMATIC_IMAGE_HOST}${cleanName}.jpg`;
+};
+
+const formatImageURL = (url, plantName) => {
+  if (AUTOMATIC_IMAGE_HOST && !url) return getAutomaticImage(plantName);
+  if (!url) return '';
+
+  if (url.includes('github.com') && url.includes('/blob/')) {
+    return url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+  }
+
+  if (url.includes('drive.google.com')) {
+    try {
+      let fileId = '';
+      const match1 = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      const match2 = url.match(/id=([a-zA-Z0-9_-]+)/);
+      if (match1) fileId = match1[1]; else if (match2) fileId = match2[1];
+      if (fileId) return `https://drive.google.com/uc?export=view&id=${fileId}`;
+    } catch (e) { return url; }
+  }
+  
+  return url;
+};
+
+// --- COMPONENTS ---
+
+const FilterSelect = ({ label, options, selected, onChange, icon: Icon }) => (
+  <div className="flex flex-col gap-1.5 w-full">
+    <label className="text-xs font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5 ml-1">
+      <Icon size={12} className="text-lime-600" />
+      {label}
+    </label>
+    <div className="relative">
+        <select 
+            value={selected}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full appearance-none bg-white/50 backdrop-blur-sm border border-white/60 hover:border-emerald-300 text-emerald-900 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all shadow-sm font-medium cursor-pointer"
+        >
+            <option value="">Todos</option>
+            {options.map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+            ))}
+        </select>
+        <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-emerald-600">
+            <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path></svg>
+        </div>
+    </div>
+  </div>
+);
+
+const FilterToggle = ({ label, isActive, onToggle, icon: Icon }) => (
+    <button 
+        onClick={onToggle}
+        className={`flex items-center justify-between w-full px-4 py-3 rounded-xl border transition-all duration-300 group ${isActive ? 'bg-gradient-to-r from-lime-500 to-emerald-500 text-white border-transparent shadow-lg shadow-emerald-500/30' : 'bg-white/50 border-white/60 text-emerald-800 hover:bg-white hover:shadow-md'}`}
+    >
+        <div className="flex items-center gap-3">
+            <Icon size={18} className={isActive ? 'text-white' : 'text-emerald-600'} />
+            <span className="font-bold text-sm">{label}</span>
+        </div>
+        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isActive ? 'border-white bg-white text-emerald-600' : 'border-emerald-300 bg-transparent'}`}>
+            {isActive && <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />}
+        </div>
+    </button>
+);
+
+const Tag = ({ text, color }) => (
+  <span className={`px-2 py-1 text-[10px] uppercase tracking-wider font-bold rounded-full shadow-sm backdrop-blur-md bg-opacity-90 border border-white/40 ${color} transition-transform hover:scale-105`}>
+    {text}
+  </span>
+);
+
+const PlantCard = ({ plant, isSelected, onToggle }) => {
+  const imageSrc = formatImageURL(plant.Imagem, plant.Nome) || `https://placehold.co/600x400/e2e8f0/1e293b?text=${encodeURIComponent(plant.Nome)}`;
+  const isNative = plant.Origem === "Nativa";
+
+  // Ícone de Grupo dinâmico (Usando ícones seguros e importados)
+  let GroupIcon = Leaf;
+  if(plant.Grupo === "Árvore") GroupIcon = Sprout; 
+  if(plant.Grupo === "Arbusto") GroupIcon = Leaf;
+  if(plant.Grupo === "Gramado" || plant.Grupo === "Forração") GroupIcon = Wind;
+  if(plant.Grupo === "Herbácea") GroupIcon = Flower;
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div 
+      className={`group relative flex flex-col h-full overflow-hidden rounded-3xl transition-all duration-500 cursor-pointer border
+        ${isSelected 
+          ? 'border-lime-500 ring-4 ring-lime-400/30 shadow-2xl translate-y-[-6px] bg-white/90' 
+          : 'border-white/40 bg-white/40 backdrop-blur-lg hover:shadow-xl hover:bg-white/60 hover:border-white/60 hover:translate-y-[-4px]'
+        }`}
+      onClick={() => onToggle(plant)}
+    >
+      <div className="h-56 overflow-hidden relative">
+        <img src={imageSrc} alt={plant.Nome} 
+             onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/600x400/e2e8f0/1e293b?text=${encodeURIComponent(plant.Nome)}`; }}
+             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        
+        {/* Gradiente Elegante */}
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent opacity-80"></div>
+        
+        {/* Badge de Origem Glass */}
+        <div className="absolute top-3 left-3">
+            <span className={`px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg backdrop-blur-md border border-white/30 flex items-center gap-1 shadow-lg ${isNative ? 'bg-emerald-600/80 text-white' : 'bg-amber-600/80 text-white'}`}>
+                {isNative ? <Leaf size={10} /> : <Globe size={10} />}
+                {plant.Origem}
+            </span>
+        </div>
 
-export default App
+        {/* Badge de Frutífera (Se aplicável) */}
+        {plant.Frutifera && (
+            <div className="absolute top-3 right-14">
+                <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg backdrop-blur-md border border-white/30 flex items-center gap-1 shadow-lg bg-rose-500/90 text-white">
+                    <Sprout size={10} /> Frutífera
+                </span>
+            </div>
+        )}
+
+        <div className="absolute bottom-4 left-4 right-4 text-white">
+            <h3 className="text-xl font-bold leading-tight drop-shadow-md text-white">{plant.Nome}</h3>
+            <p className="text-xs text-lime-100 font-medium opacity-90 drop-shadow-sm">{plant["Nome Científico"]}</p>
+        </div>
+
+        <div className="absolute top-3 right-3">
+           <button className={`p-2 rounded-full transition-all duration-300 shadow-lg ${isSelected ? 'bg-gradient-to-r from-lime-500 to-green-500 text-white scale-110 rotate-90' : 'bg-white/30 text-white hover:bg-white hover:text-emerald-700 backdrop-blur-md'}`}>
+             {isSelected ? <Minus size={18} /> : <Plus size={18} />}
+           </button>
+        </div>
+      </div>
+      
+      <div className="p-5 flex-1 flex flex-col">
+        
+        {/* 1. LINHA DE METADADOS: Grupo */}
+        <div className="flex flex-wrap gap-2 mb-4">
+             {/* Tag Grupo */}
+            <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg backdrop-blur-md border border-slate-200 bg-slate-100 text-slate-600 flex items-center gap-1 shadow-sm w-fit">
+                <GroupIcon size={10} /> {plant.Grupo}
+            </span>
+        </div>
+
+        {/* 2. LINHA DE TAGS FUNCIONAIS: Sol, Água */}
+        <div className="flex flex-wrap gap-2 mb-3">
+           {plant["Luz Solar"] === "Sol Pleno" && <Tag text="☀️ Sol" color="bg-amber-100 text-amber-800 border-amber-200" />}
+           {plant["Luz Solar"] === "Meia Sombra" && <Tag text="⛅ Meia Sombra" color="bg-orange-100 text-orange-800 border-orange-200" />}
+           {plant["Luz Solar"] === "Sombra" && <Tag text="☁️ Sombra" color="bg-blue-100 text-blue-800 border-blue-200" />}
+           
+           <Tag text={`💧 ${plant["Necessidade de Água"]}`} color="bg-sky-100 text-sky-800 border-sky-200" />
+        </div>
+        
+        <p className="text-sm text-emerald-900/80 line-clamp-3 mb-4 leading-relaxed font-medium">{plant.Descrição}</p>
+        
+        <div className="mt-auto pt-3 border-t border-emerald-100/50 flex justify-between items-center text-xs text-emerald-800 font-semibold">
+            <span className="flex items-center gap-1 opacity-70">
+                <Leaf size={14} /> Altura: {plant.Altura}
+            </span>
+            <span className={`font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${plant.Dificuldade === 'Fácil' ? 'bg-green-100 text-green-700' : plant.Dificuldade === 'Moderada' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                {plant.Dificuldade}
+            </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const GardenPlan = ({ selectedPlants, onRemove }) => {
+  const [aiAdvice, setAiAdvice] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [userInfo, setUserInfo] = useState({
+    spaceSize: 'Médio',
+    hasPets: false,
+    hasChildren: false
+  });
+
+  const generateAIPlan = async () => {
+    if (selectedPlants.length === 0) return;
+    setLoading(true);
+    setAiAdvice(null);
+    const plantNames = selectedPlants.map(p => p.Nome).join(", ");
+    
+    // Verificação de Toxicidade
+    const toxicPlants = selectedPlants.filter(p => p.Tags.includes("Tóxica"));
+    let warningMessage = "";
+    if ((userInfo.hasPets || userInfo.hasChildren) && toxicPlants.length > 0) {
+        const names = toxicPlants.map(p => p.Nome).join(", ");
+        warningMessage = `ATENÇÃO: Você indicou ter ${userInfo.hasPets ? 'pets' : ''} ${userInfo.hasChildren ? 'crianças' : ''}. As seguintes plantas escolhidas podem ser tóxicas: ${names}. Recomenda-se substituí-las ou mantê-las fora do alcance.`;
+    }
+
+    const prompt = `
+      Atue como um paisagista urbano moderno em Ilhéus, Bahia.
+      O cliente selecionou: ${plantNames}.
+      
+      Perfil do Cliente:
+      - Tamanho do Espaço: ${userInfo.spaceSize}
+      - Tem Pets? ${userInfo.hasPets ? "Sim" : "Não"}
+      - Tem Crianças? ${userInfo.hasChildren ? "Sim" : "Não"}
+      
+      ${warningMessage ? `ALERTA DE SEGURANÇA: ${warningMessage}` : ""}
+
+      Contexto: O cliente mora em um ambiente urbano. Foco em praticidade, segurança e beleza tropical.
+      
+      IMPORTANTE: Responda APENAS com código HTML válido. Use cores harmoniosas e modernas (Verde Floresta #064e3b, Âmbar Suave #d97706).
+      
+      Estrutura da Resposta:
+      <h3 style="color: #064e3b; font-size: 1.6rem; margin-bottom: 0.5rem; font-weight: 800;">1. Análise do Seu Espaço (${userInfo.spaceSize}) 🏡</h3>
+      <p style="color: #374151;">Análise personalizada para o tamanho do seu espaço:</p>
+      <ul style="color: #374151; padding-left: 20px;">
+        <li><strong>Layout:</strong> Sugestão de distribuição para espaço ${userInfo.spaceSize}.</li>
+        <li><strong>Segurança:</strong> ${userInfo.hasPets || userInfo.hasChildren ? "Comentários sobre segurança para pets/crianças." : "Dicas gerais de manutenção."}</li>
+      </ul>
+
+      ${warningMessage ? `<div style="background-color: #fef2f2; padding: 15px; border-left: 4px solid #ef4444; color: #991b1b; margin: 15px 0;"><strong>⚠️ Alerta de Toxicidade:</strong> ${warningMessage}</div>` : ""}
+
+      <h3 style="color: #064e3b; font-size: 1.6rem; margin-top: 2rem; margin-bottom: 0.5rem; font-weight: 800;">2. Dicas de Paisagismo 🌿</h3>
+      <div style="background-color: #ecfdf5; padding: 20px; border-radius: 16px; border: 1px solid #a7f3d0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+        <strong style="color: #047857;">💡 Dica de Ouro:</strong> Dê dicas de como dispor essas plantas para garantir privacidade e estética no espaço ${userInfo.spaceSize}.
+      </div>
+
+      <h3 style="color: #064e3b; font-size: 1.6rem; margin-top: 2rem; margin-bottom: 0.5rem; font-weight: 800;">3. Layout Sugerido 📐</h3>
+      <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+        <div style="background: #ffffff; padding: 15px; border-left: 4px solid #059669; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <strong style="color: #064e3b;">Muros e Divisas:</strong> [Plantas altas/Trepadeiras]
+        </div>
+        <div style="background: #ffffff; padding: 15px; border-left: 4px solid #d97706; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+             <strong style="color: #92400e;">Vasos e Destaques:</strong> [Arbustos/Esculturais]
+        </div>
+        <div style="background: #ffffff; padding: 15px; border-left: 4px solid #0891b2; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+             <strong style="color: #155e75;">Acabamento:</strong> [Forrações]
+        </div>
+      </div>
+    `;
+
+    try {
+      const apiKey = ""; 
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+        }
+      );
+      const data = await response.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      const cleanHtml = text.replace(/```html/g, '').replace(/```/g, '');
+      setAiAdvice(cleanHtml || "Erro ao gerar consultoria.");
+    } catch (error) {
+      console.error("Erro na AI:", error);
+      setAiAdvice("Erro na conexão.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-8 animate-fadeIn pb-20">
+      <div className="bg-white/80 backdrop-blur-2xl rounded-3xl p-8 border border-white/50 shadow-2xl relative overflow-hidden">
+        
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-300/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-300/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-white/30 pb-6 relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl text-white shadow-xl shadow-emerald-500/30">
+               <Home size={32} strokeWidth={2.5} />
+            </div>
+            <div>
+              <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-900 to-teal-800 tracking-tight">Seu Projeto</h2>
+              <p className="text-emerald-700 font-bold">Paisagismo Residencial Personalizado</p>
+            </div>
+          </div>
+          
+          {selectedPlants.length > 0 && !loading && !aiAdvice && (
+             <button onClick={generateAIPlan} className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg transition-all hover:shadow-emerald-500/40 hover:-translate-y-1">
+               <Sparkles size={20} className="text-yellow-200" />
+               Gerar Consultoria
+             </button>
+          )}
+        </div>
+
+        {/* --- FORMULÁRIO DE ANÁLISE DE ESPAÇO --- */}
+        {selectedPlants.length > 0 && !aiAdvice && (
+            <div className="mb-8 p-6 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+                <h3 className="text-emerald-800 font-bold mb-4 flex items-center gap-2">
+                    <Activity size={20} /> Personalize sua Análise
+                </h3>
+                <div className="flex flex-wrap gap-6">
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-semibold text-emerald-700">Tamanho do Espaço</label>
+                        <select 
+                            value={userInfo.spaceSize}
+                            onChange={(e) => setUserInfo({...userInfo, spaceSize: e.target.value})}
+                            className="px-4 py-2 rounded-xl border-emerald-200 bg-white text-emerald-900 focus:ring-2 focus:ring-emerald-400 focus:outline-none"
+                        >
+                            <option value="Pequeno (Varanda)">Pequeno (Varanda)</option>
+                            <option value="Médio (Quintal)">Médio (Quintal)</option>
+                            <option value="Grande (Jardim)">Grande (Jardim)</option>
+                        </select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-semibold text-emerald-700">Segurança</label>
+                        <div className="flex gap-4">
+                            <button 
+                                onClick={() => setUserInfo({...userInfo, hasPets: !userInfo.hasPets})}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${userInfo.hasPets ? 'bg-emerald-100 border-emerald-300 text-emerald-800 font-bold' : 'bg-white border-emerald-200 text-emerald-600'}`}
+                            >
+                                <PawPrint size={18} /> Tenho Pets
+                            </button>
+                            <button 
+                                onClick={() => setUserInfo({...userInfo, hasChildren: !userInfo.hasChildren})}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${userInfo.hasChildren ? 'bg-emerald-100 border-emerald-300 text-emerald-800 font-bold' : 'bg-white border-emerald-200 text-emerald-600'}`}
+                            >
+                                <Baby size={18} /> Tenho Crianças
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {selectedPlants.length === 0 ? (
+           <div className="text-center py-24 bg-white/40 border-2 border-dashed border-emerald-200 rounded-3xl backdrop-blur-sm">
+             <div className="bg-white/80 p-5 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-md">
+                <Sprout size={40} className="text-emerald-500" />
+             </div>
+             <p className="text-emerald-900 text-2xl font-black">Comece seu Jardim</p>
+             <p className="text-emerald-700/70 text-lg">Selecione plantas no catálogo para ver a mágica acontecer.</p>
+           </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+            {selectedPlants.map(plant => (
+              <div key={plant.Nome} className="flex items-center bg-white/70 backdrop-blur-md p-4 rounded-2xl border border-white/60 shadow-lg relative group hover:shadow-xl hover:bg-white/90 transition-all hover:-translate-y-1">
+                <img src={formatImageURL(plant.Imagem, plant.Nome)} className="w-20 h-20 rounded-xl object-cover shadow-sm" alt="" onError={(e) => { e.target.src = `https://placehold.co/100x100/e2e8f0/1e293b?text=${encodeURIComponent(plant.Nome.charAt(0))}`; }} />
+                <div className="ml-4">
+                  <h4 className="font-black text-emerald-900 text-lg">{plant.Nome}</h4>
+                  <div className="flex gap-2 mt-1">
+                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wide bg-emerald-100 px-2 py-0.5 rounded-full">{plant["Luz Solar"]}</span>
+                  </div>
+                  {/* Alerta de Toxicidade no Card */}
+                  {plant.Tags.includes("Tóxica") && (
+                      <div className="flex items-center gap-1 mt-2 text-[10px] font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full w-fit">
+                          <AlertTriangle size={10} /> Tóxica
+                      </div>
+                  )}
+                </div>
+                <button onClick={() => onRemove(plant)} className="absolute top-2 right-2 text-red-400 hover:text-white hover:bg-red-500 transition-all p-2 rounded-xl">
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {loading && (
+          <div className="py-20 text-center bg-white/30 rounded-3xl">
+            <Loader size={56} className="animate-spin mx-auto text-emerald-600 mb-6" />
+            <h3 className="text-2xl font-black text-emerald-900">Planejando seu espaço...</h3>
+            <p className="text-emerald-700 font-medium">Avaliando segurança, insolação e composição visual.</p>
+          </div>
+        )}
+
+        {aiAdvice && (
+          <div className="bg-white/95 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/60 shadow-2xl animate-in fade-in slide-in-from-bottom-8">
+            <div className="flex items-center justify-between mb-8 pb-6 border-b border-emerald-100">
+               <h3 className="text-3xl font-black text-emerald-900 flex items-center gap-3">
+                 <div className="bg-emerald-100 p-3 rounded-2xl text-emerald-600"><Leaf size={28} /></div>
+                 Consultoria Técnica
+               </h3>
+               <button onClick={generateAIPlan} className="text-sm font-bold text-emerald-600 hover:text-emerald-800 flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-xl transition-colors hover:bg-emerald-100">
+                 Atualizar
+                 <ArrowRight size={16} />
+               </button>
+            </div>
+            <div className="prose prose-emerald prose-lg max-w-none prose-headings:font-black prose-headings:text-emerald-900 prose-p:text-emerald-800 prose-p:font-medium prose-strong:text-emerald-950" dangerouslySetInnerHTML={{ __html: aiAdvice }} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// --- MAIN APP COMPONENT ---
+export default function PaisagismoIlheus() {
+  const [view, setView] = useState('catalog');
+  const [selectedPlants, setSelectedPlants] = useState([]);
+  const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState({ espaco: "", luz: "", dificuldade: "", origem: "", grupo: "", frutifera: false });
+
+  const luzOptions = useMemo(() => [...new Set(plantData.map(p => p["Luz Solar"]))], []);
+  const espacoOptions = ["Apartamento/Varanda", "Quintal (Pequeno)", "Jardim (Grande)"];
+  const dificuldadeOptions = ["Fácil", "Moderada", "Difícil"];
+  const origemOptions = ["Nativa", "Exótica"];
+  const grupoOptions = [...new Set(plantData.map(p => p.Grupo))];
+  
+  const filteredPlants = useMemo(() => {
+    return plantData.filter(plant => {
+      const matchesSearch = plant.Nome.toLowerCase().includes(search.toLowerCase()) || plant.Tags.toLowerCase().includes(search.toLowerCase());
+      const matchesLuz = filters.luz ? plant["Luz Solar"] === filters.luz : true;
+      const matchesEspaco = filters.espaco ? plant.Espacos.includes(filters.espaco) : true;
+      const matchesDificuldade = filters.dificuldade ? plant.Dificuldade === filters.dificuldade : true;
+      const matchesOrigem = filters.origem ? plant.Origem === filters.origem : true;
+      const matchesGrupo = filters.grupo ? plant.Grupo === filters.grupo : true;
+      const matchesFrutifera = filters.frutifera ? plant.Frutifera === true : true;
+        
+      return matchesSearch && matchesLuz && matchesEspaco && matchesDificuldade && matchesOrigem && matchesGrupo && matchesFrutifera;
+    });
+  }, [search, filters]);
+
+  const togglePlant = (plant) => {
+    if (selectedPlants.find(p => p.Nome === plant.Nome)) setSelectedPlants(prev => prev.filter(p => p.Nome !== plant.Nome));
+    else setSelectedPlants(prev => [...prev, plant]);
+  };
+
+  return (
+    <div className="min-h-screen font-sans text-emerald-950 selection:bg-lime-200 selection:text-emerald-900 relative">
+      
+      {/* Background Abstrato "Lima/Primavera" */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-br from-lime-50 via-emerald-50 to-teal-50"></div>
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+          <div className="absolute -top-20 -right-20 w-[600px] h-[600px] bg-lime-200/40 rounded-full blur-[100px] animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-20 w-[500px] h-[500px] bg-emerald-200/40 rounded-full blur-[100px]"></div>
+      </div>
+
+      <div className="relative z-10 w-full h-screen overflow-hidden flex flex-col md:flex-row">
+        
+        {/* --- SIDEBAR DE FILTROS --- */}
+        <aside className="w-full md:w-80 shrink-0 bg-white/60 backdrop-blur-2xl border-r border-white/40 h-full overflow-y-auto custom-scrollbar flex flex-col shadow-2xl relative z-20">
+            <div className="p-6 pb-2">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl text-white shadow-lg shadow-emerald-500/30">
+                        <Home size={24} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-black text-emerald-900 tracking-tight leading-none">Flora Ilhéus</h1>
+                        <p className="text-xs text-emerald-700 font-bold uppercase tracking-wider mt-1">Paisagismo Urbano</p>
+                    </div>
+                </div>
+
+                {/* Busca */}
+                <div className="relative mb-6">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600" size={18} />
+                    <input type="text" placeholder="Buscar planta..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-11 pr-4 py-3 bg-white/70 border border-white/60 rounded-2xl focus:outline-none focus:border-lime-500 focus:bg-white text-emerald-900 placeholder-emerald-600/50 font-bold transition-all shadow-inner text-sm" />
+                </div>
+
+                <div className="h-px w-full bg-emerald-900/10 mb-6"></div>
+                
+                <h3 className="text-xs font-black text-emerald-900 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <Filter size={14} /> Filtros de Seleção
+                </h3>
+            </div>
+
+            <div className="px-6 space-y-5 pb-10">
+                <FilterSelect label="Tipo de Planta" icon={Leaf} options={[...new Set(plantData.map(p => p.Grupo))]} selected={filters.grupo} onChange={(val) => setFilters(prev => ({...prev, grupo: val}))} />
+                <FilterSelect label="Tamanho do Espaço" icon={Maximize} options={["Apartamento/Varanda", "Quintal (Pequeno)", "Jardim (Grande)"]} selected={filters.espaco} onChange={(val) => setFilters(prev => ({...prev, espaco: val}))} />
+                <FilterSelect label="Luz Solar" icon={Sun} options={[...new Set(plantData.map(p => p["Luz Solar"]))]} selected={filters.luz} onChange={(val) => setFilters(prev => ({...prev, luz: val}))} />
+                <FilterSelect label="Dificuldade" icon={Activity} options={["Fácil", "Moderada", "Difícil"]} selected={filters.dificuldade} onChange={(val) => setFilters(prev => ({...prev, dificuldade: val}))} />
+                <FilterSelect label="Origem" icon={Globe} options={["Nativa", "Exótica"]} selected={filters.origem} onChange={(val) => setFilters(prev => ({...prev, origem: val}))} />
+                
+                <FilterToggle label="Apenas Frutíferas" icon={Sprout} isActive={filters.frutifera} onToggle={() => setFilters(prev => ({...prev, frutifera: !prev.frutifera}))} />
+
+                <button onClick={() => {setFilters({luz:'', espaco:'', dificuldade:'', origem:'', grupo:'', frutifera: false}); setSearch('')}} className="w-full py-3 mt-4 text-xs font-bold uppercase tracking-widest text-emerald-600 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors border border-transparent hover:border-red-100 flex items-center justify-center gap-2">
+                    <X size={14} /> Limpar Filtros
+                </button>
+            </div>
+        </aside>
+
+        {/* --- CONTEÚDO PRINCIPAL --- */}
+        <main className="flex-1 h-full overflow-y-auto relative custom-scrollbar">
+            
+            {/* Header Mobile / Tab Bar */}
+            <div className="sticky top-0 z-30 p-4 md:p-8 flex justify-center md:justify-end pointer-events-none">
+                <div className="flex gap-2 bg-white/80 p-1.5 rounded-2xl shadow-xl border border-white/50 backdrop-blur-xl pointer-events-auto">
+                    <button 
+                        onClick={() => setView('catalog')} 
+                        className={`px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider transition-all shadow-sm ${view === 'catalog' ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30' : 'bg-transparent text-emerald-800 hover:bg-emerald-50'}`}
+                    >
+                        Catálogo
+                    </button>
+                    <button 
+                        onClick={() => setView('design')} 
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider transition-all shadow-sm ${view === 'design' ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30' : 'bg-transparent text-emerald-800 hover:bg-emerald-50'}`}
+                    >
+                        Meu Jardim
+                        {selectedPlants.length > 0 && <span className="bg-lime-400 text-emerald-900 text-[10px] px-2 py-0.5 rounded-full animate-pulse">{selectedPlants.length}</span>}
+                    </button>
+                </div>
+            </div>
+
+            <div className="px-4 md:px-10 pb-20">
+                {view === 'catalog' ? (
+                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="flex justify-between items-end mb-2">
+                            <div>
+                                <h2 className="text-3xl font-black text-emerald-900 tracking-tight">Catálogo</h2>
+                                <p className="text-emerald-700/60 font-medium">Explore as melhores opções para Ilhéus</p>
+                            </div>
+                            <span className="text-xs font-black text-emerald-900/40 uppercase tracking-widest bg-emerald-900/5 px-3 py-1 rounded-lg">
+                                {filteredPlants.length} plantas
+                            </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                            {filteredPlants.map((plant) => (
+                            <PlantCard key={plant.Nome} plant={plant} isSelected={selectedPlants.some(p => p.Nome === plant.Nome)} onToggle={togglePlant} />
+                            ))}
+                        </div>
+                        
+                        {filteredPlants.length === 0 && (
+                            <div className="text-center py-32 bg-white/20 backdrop-blur-md rounded-[2.5rem] border-2 border-dashed border-white/40 flex flex-col items-center justify-center">
+                                <div className="bg-white/40 p-4 rounded-full mb-4">
+                                    <Leaf size={40} className="text-emerald-400 opacity-50" />
+                                </div>
+                                <p className="text-emerald-900 text-2xl font-black mb-2">Nenhuma planta encontrada.</p>
+                                <p className="text-emerald-700/60 font-medium">Tente ajustar os filtros na barra lateral.</p>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <GardenPlan selectedPlants={selectedPlants} onRemove={(p) => togglePlant(p)} />
+                    </div>
+                )}
+            </div>
+        </main>
+      </div>
+      
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.2); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(16, 185, 129, 0.4); }
+        /* Typography overrides for the AI content */
+        .prose strong { color: #059669; font-weight: 800; }
+        .prose ul li { margin-bottom: 0.5em; }
+      `}</style>
+    </div>
+  );
+}
