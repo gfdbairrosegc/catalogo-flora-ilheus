@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DE IMAGENS ---
-const AUTOMATIC_IMAGE_HOST = "https://raw.githubusercontent.com/gfdbairrosegc/catalogo-flora-ilheus/main/"; 
+const AUTOMATIC_IMAGE_HOST = "/catalogo-flora-ilheus/images/"; 
 
 // --- DATABASE COMPLETO ---
 const plantData = [
@@ -39,7 +39,7 @@ const plantData = [
         "Altura": "Trepadeira",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Média",
-        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Exótica",
         "Grupo": "Trepadeira",
@@ -53,7 +53,7 @@ const plantData = [
         "Altura": "0.5 m",
         "Luz Solar": "Meia Sombra",
         "Necessidade de Água": "Média",
-        "Espacos": ["Apartamento/Varanda", "Quintal (Pequeno)"],
+        "Espacos": ["Apartamento/Varanda", "Jardim (Médio)"],
         "Dificuldade": "Moderada",
         "Origem": "Exótica",
         "Grupo": "Herbácea",
@@ -67,7 +67,7 @@ const plantData = [
         "Altura": "3-5 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Média",
-        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Arbusto",
@@ -81,7 +81,7 @@ const plantData = [
         "Altura": "6-9 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Média",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Árvore",
@@ -95,7 +95,7 @@ const plantData = [
         "Altura": "10-15 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Alta",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Moderada",
         "Origem": "Exótica",
         "Grupo": "Arbusto",
@@ -109,7 +109,7 @@ const plantData = [
         "Altura": "1.5 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Baixa",
-        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Herbácea",
@@ -137,7 +137,7 @@ const plantData = [
         "Altura": "0.8 m",
         "Luz Solar": "Sombra",
         "Necessidade de Água": "Alta",
-        "Espacos": ["Apartamento/Varanda", "Quintal (Pequeno)"],
+        "Espacos": ["Apartamento/Varanda", "Jardim (Médio)"],
         "Dificuldade": "Difícil",
         "Origem": "Nativa",
         "Grupo": "Herbácea",
@@ -151,7 +151,7 @@ const plantData = [
         "Altura": "3-4 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Baixa",
-        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Arbusto",
@@ -165,7 +165,7 @@ const plantData = [
         "Altura": "2-3 m",
         "Luz Solar": "Sombra",
         "Necessidade de Água": "Média",
-        "Espacos": ["Apartamento/Varanda", "Quintal (Pequeno)"],
+        "Espacos": ["Apartamento/Varanda", "Jardim (Médio)"],
         "Dificuldade": "Fácil",
         "Origem": "Exótica",
         "Grupo": "Herbácea",
@@ -179,7 +179,7 @@ const plantData = [
         "Altura": "1-3 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Baixa",
-        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Arbusto",
@@ -193,7 +193,7 @@ const plantData = [
         "Altura": "0.2 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Média",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Forração",
@@ -207,7 +207,7 @@ const plantData = [
         "Altura": "0.1 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Média",
-        "Espacos": ["Quintal (Pequeno)"],
+        "Espacos": ["Jardim (Médio)"],
         "Dificuldade": "Moderada",
         "Origem": "Exótica",
         "Grupo": "Gramado",
@@ -221,7 +221,7 @@ const plantData = [
         "Altura": "0.1 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Média",
-        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
         "Dificuldade": "Moderada",
         "Origem": "Exótica",
         "Grupo": "Gramado",
@@ -235,7 +235,7 @@ const plantData = [
         "Altura": "0.2 m",
         "Luz Solar": "Sombra",
         "Necessidade de Água": "Média",
-        "Espacos": ["Quintal (Pequeno)", "Apartamento/Varanda"],
+        "Espacos": ["Jardim (Médio)", "Apartamento/Varanda"],
         "Dificuldade": "Fácil",
         "Origem": "Exótica",
         "Grupo": "Forração",
@@ -249,7 +249,7 @@ const plantData = [
         "Altura": "0.15 m",
         "Luz Solar": "Meia Sombra",
         "Necessidade de Água": "Média",
-        "Espacos": ["Jardim (Grande)", "Quintal (Pequeno)"],
+        "Espacos": ["Quintal (Grande)", "Jardim (Médio)"],
         "Dificuldade": "Fácil",
         "Origem": "Exótica",
         "Grupo": "Gramado",
@@ -263,7 +263,7 @@ const plantData = [
         "Altura": "0.15 m",
         "Luz Solar": "Meia Sombra",
         "Necessidade de Água": "Alta",
-        "Espacos": ["Jardim (Grande)", "Quintal (Pequeno)"],
+        "Espacos": ["Quintal (Grande)", "Jardim (Médio)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Gramado",
@@ -277,7 +277,7 @@ const plantData = [
         "Altura": "5-10 m",
         "Luz Solar": "Meia Sombra",
         "Necessidade de Água": "Alta",
-        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
         "Dificuldade": "Moderada",
         "Origem": "Nativa",
         "Grupo": "Árvore",
@@ -291,7 +291,7 @@ const plantData = [
         "Altura": "20-30 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Alta",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Árvore",
@@ -305,7 +305,7 @@ const plantData = [
         "Altura": "1-2 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Alta",
-        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Exótica",
         "Grupo": "Herbácea",
@@ -319,7 +319,7 @@ const plantData = [
         "Altura": "8-15 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Baixa",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Árvore",
@@ -333,7 +333,7 @@ const plantData = [
         "Altura": "7-16 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Baixa",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Árvore",
@@ -347,7 +347,7 @@ const plantData = [
         "Altura": "8-12 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Baixa",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Árvore",
@@ -361,7 +361,7 @@ const plantData = [
         "Altura": "1-2 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Média",
-        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Exótica",
         "Grupo": "Arbusto",
@@ -375,7 +375,7 @@ const plantData = [
         "Altura": "3-5 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Baixa",
-        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Exótica",
         "Grupo": "Árvore",
@@ -389,7 +389,7 @@ const plantData = [
         "Altura": "15-30 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Baixa",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Árvore",
@@ -403,7 +403,7 @@ const plantData = [
         "Altura": "30-50 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Média",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Moderada",
         "Origem": "Nativa",
         "Grupo": "Árvore",
@@ -431,7 +431,7 @@ const plantData = [
         "Altura": "0.3 m",
         "Luz Solar": "Sombra",
         "Necessidade de Água": "Alta",
-        "Espacos": ["Apartamento/Varanda", "Quintal (Pequeno)"],
+        "Espacos": ["Apartamento/Varanda", "Jardim (Médio)"],
         "Dificuldade": "Difícil",
         "Origem": "Nativa",
         "Grupo": "Herbácea",
@@ -459,7 +459,7 @@ const plantData = [
         "Altura": "0.6 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Baixa",
-        "Espacos": ["Apartamento/Varanda", "Quintal (Pequeno)"],
+        "Espacos": ["Apartamento/Varanda", "Jardim (Médio)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Herbácea",
@@ -473,7 +473,7 @@ const plantData = [
         "Altura": "20-30 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Baixa",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Árvore",
@@ -487,7 +487,7 @@ const plantData = [
         "Altura": "3-6 m",
         "Luz Solar": "Meia Sombra",
         "Necessidade de Água": "Média",
-        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Exótica",
         "Grupo": "Palmeira",
@@ -501,7 +501,7 @@ const plantData = [
         "Altura": "10-15 m",
         "Luz Solar": "Meia Sombra",
         "Necessidade de Água": "Alta",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Moderada",
         "Origem": "Nativa",
         "Grupo": "Palmeira",
@@ -515,7 +515,7 @@ const plantData = [
         "Altura": "10-15 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Baixa",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Moderada",
         "Origem": "Nativa",
         "Grupo": "Árvore",
@@ -529,7 +529,7 @@ const plantData = [
         "Altura": "8-15 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Baixa",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Árvore",
@@ -543,7 +543,7 @@ const plantData = [
         "Altura": "3-5 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Média",
-        "Espacos": ["Quintal (Pequeno)", "Jardim (Grande)"],
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Arbusto",
@@ -557,7 +557,7 @@ const plantData = [
         "Altura": "8-12 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Média",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Árvore",
@@ -571,7 +571,7 @@ const plantData = [
         "Altura": "10-15 m",
         "Luz Solar": "Sol Pleno",
         "Necessidade de Água": "Média",
-        "Espacos": ["Jardim (Grande)"],
+        "Espacos": ["Quintal (Grande)"],
         "Dificuldade": "Fácil",
         "Origem": "Nativa",
         "Grupo": "Árvore",
@@ -622,6 +622,20 @@ const formatImageURL = (url, plantName) => {
   return url;
 };
 
+// Gera caminho local para imagens das plantas (normaliza nomes: lowercase, sem acentos, espaços -> hífens)
+const getPlantImage = (plantName) => {
+  if (!plantName) return '';
+  // Normaliza: remove acentos, converte para lowercase, espaços -> '-', remove chars não alfanuméricos/hífen
+  const cleanName = plantName.toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+
+  const basePath = import.meta.env.BASE_URL || '/'; // Pega a base correta (/catalogo-flora-ilheus/)
+  return `${basePath}images/${cleanName}.jpg`;
+};
+
 // --- COMPONENTS ---
 
 const FilterSelect = ({ label, options, selected, onChange, icon: Icon }) => (
@@ -670,7 +684,7 @@ const Tag = ({ text, color }) => (
 );
 
 const PlantCard = ({ plant, isSelected, onToggle }) => {
-  const imageSrc = formatImageURL(plant.Imagem, plant.Nome) || `https://placehold.co/600x400/e2e8f0/1e293b?text=${encodeURIComponent(plant.Nome)}`;
+  const imageSrc = plant.Imagem ? formatImageURL(plant.Imagem, plant.Nome) : getPlantImage(plant.Nome);
   const isNative = plant.Origem === "Nativa";
 
   // Ícone de Grupo dinâmico (Usando ícones seguros e importados)
@@ -682,17 +696,49 @@ const PlantCard = ({ plant, isSelected, onToggle }) => {
 
   return (
     <div 
-      className={`group relative flex flex-col h-full overflow-hidden rounded-3xl transition-all duration-500 cursor-pointer border
-        ${isSelected 
-          ? 'border-lime-500 ring-4 ring-lime-400/30 shadow-2xl translate-y-[-6px] bg-white/90' 
-          : 'border-white/40 bg-white/40 backdrop-blur-lg hover:shadow-xl hover:bg-white/60 hover:border-white/60 hover:translate-y-[-4px]'
-        }`}
+      className={`
+      group relative flex flex-col h-full 
+      bg-white border border-emerald-100/80 shadow-sm 
+      rounded-[2rem] overflow-hidden transition-all duration-300 
+      hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1
+      ${isSelected ? 'ring-2 ring-emerald-500 ring-offset-2' : ''}
+    `}
       onClick={() => onToggle(plant)}
     >
       <div className="h-56 overflow-hidden relative">
-        <img src={imageSrc} alt={plant.Nome} 
-             onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/600x400/e2e8f0/1e293b?text=${encodeURIComponent(plant.Nome)}`; }}
-             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+           <img 
+             src={imageSrc}
+             alt={plant.Nome}
+             loading="lazy"
+             decoding="async"
+             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+             onError={(e) => {
+               const el = e.target;
+               try {
+                 const attempts = parseInt(el.dataset.attempts || '0', 10);
+                 const src = el.src || '';
+                 const m = src.match(/(\.jpe?g|\.png|\.webp)(\?.*)?$/i);
+                 const base = m ? src.slice(0, m.index) : src;
+                 const query = m && m[2] ? m[2] : '';
+
+                 // 0: try .webp, 1: try .png, otherwise fallback
+                 if (attempts === 0) {
+                   el.dataset.attempts = '1';
+                   el.src = base + '.webp' + query;
+                   return;
+                 }
+                 if (attempts === 1) {
+                   el.dataset.attempts = '2';
+                   el.src = base + '.png' + query;
+                   return;
+                 }
+               } catch (err) {
+                 // ignore and fallback
+               }
+               el.onerror = null;
+               el.src = "https://placehold.co/600x400?text=Sem+Foto";
+             }}
+           />
         
         {/* Gradiente Elegante */}
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent opacity-80"></div>
@@ -828,7 +874,7 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
     `;
 
     try {
-      const apiKey = ""; 
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
         {
@@ -890,8 +936,8 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
                             className="px-4 py-2 rounded-xl border-emerald-200 bg-white text-emerald-900 focus:ring-2 focus:ring-emerald-400 focus:outline-none"
                         >
                             <option value="Pequeno (Varanda)">Pequeno (Varanda)</option>
-                            <option value="Médio (Quintal)">Médio (Quintal)</option>
-                            <option value="Grande (Jardim)">Grande (Jardim)</option>
+                            <option value="Médio (Jardim)">Médio (Jardim)</option>
+                            <option value="Grande (Quintal)">Grande (Quintal)</option>
                         </select>
                     </div>
                     <div className="flex flex-col gap-2">
@@ -984,7 +1030,7 @@ export default function PaisagismoIlheus() {
   const [filters, setFilters] = useState({ espaco: "", luz: "", dificuldade: "", origem: "", grupo: "", frutifera: false });
 
   const luzOptions = useMemo(() => [...new Set(plantData.map(p => p["Luz Solar"]))], []);
-  const espacoOptions = ["Apartamento/Varanda", "Quintal (Pequeno)", "Jardim (Grande)"];
+  const espacoOptions = ["Apartamento/Varanda", "Jardim (Médio)", "Quintal (Grande)"];
   const dificuldadeOptions = ["Fácil", "Moderada", "Difícil"];
   const origemOptions = ["Nativa", "Exótica"];
   const grupoOptions = [...new Set(plantData.map(p => p.Grupo))];
@@ -1048,7 +1094,7 @@ export default function PaisagismoIlheus() {
 
             <div className="px-6 space-y-5 pb-10">
                 <FilterSelect label="Tipo de Planta" icon={Leaf} options={[...new Set(plantData.map(p => p.Grupo))]} selected={filters.grupo} onChange={(val) => setFilters(prev => ({...prev, grupo: val}))} />
-                <FilterSelect label="Tamanho do Espaço" icon={Maximize} options={["Apartamento/Varanda", "Quintal (Pequeno)", "Jardim (Grande)"]} selected={filters.espaco} onChange={(val) => setFilters(prev => ({...prev, espaco: val}))} />
+                <FilterSelect label="Tamanho do Espaço" icon={Maximize} options={["Apartamento/Varanda", "Jardim (Médio)", "Quintal (Grande)"]} selected={filters.espaco} onChange={(val) => setFilters(prev => ({...prev, espaco: val}))} />
                 <FilterSelect label="Luz Solar" icon={Sun} options={[...new Set(plantData.map(p => p["Luz Solar"]))]} selected={filters.luz} onChange={(val) => setFilters(prev => ({...prev, luz: val}))} />
                 <FilterSelect label="Dificuldade" icon={Activity} options={["Fácil", "Moderada", "Difícil"]} selected={filters.dificuldade} onChange={(val) => setFilters(prev => ({...prev, dificuldade: val}))} />
                 <FilterSelect label="Origem" icon={Globe} options={["Nativa", "Exótica"]} selected={filters.origem} onChange={(val) => setFilters(prev => ({...prev, origem: val}))} />
@@ -1064,60 +1110,89 @@ export default function PaisagismoIlheus() {
         {/* --- CONTEÚDO PRINCIPAL --- */}
         <main className="flex-1 h-full overflow-y-auto relative custom-scrollbar">
             
-            {/* Header Mobile / Tab Bar */}
-            <div className="sticky top-0 z-30 p-4 md:p-8 flex justify-center md:justify-end pointer-events-none">
-                <div className="flex gap-2 bg-white/80 p-1.5 rounded-2xl shadow-xl border border-white/50 backdrop-blur-xl pointer-events-auto">
-                    <button 
-                        onClick={() => setView('catalog')} 
-                        className={`px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider transition-all shadow-sm ${view === 'catalog' ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30' : 'bg-transparent text-emerald-800 hover:bg-emerald-50'}`}
-                    >
-                        Catálogo
-                    </button>
-                    <button 
-                        onClick={() => setView('design')} 
-                        className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider transition-all shadow-sm ${view === 'design' ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30' : 'bg-transparent text-emerald-800 hover:bg-emerald-50'}`}
-                    >
-                        Meu Jardim
-                        {selectedPlants.length > 0 && <span className="bg-lime-400 text-emerald-900 text-[10px] px-2 py-0.5 rounded-full animate-pulse">{selectedPlants.length}</span>}
-                    </button>
+            {/* --- CONTEÚDO PRINCIPAL (COM NOVO HEADER) --- */}
+<main className="flex-1 h-full overflow-y-auto relative custom-scrollbar">
+    
+    {/* 1. NOVO CABEÇALHO HERO (Degradê + Vidro + Animação) */}
+    <header className="relative text-center pt-20 pb-10 px-4 max-w-5xl mx-auto overflow-hidden md:overflow-visible">
+        {/* Luz de Fundo (Glow) */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[600px] h-[300px] bg-emerald-400/20 blur-[100px] rounded-full -z-10 pointer-events-none" />
+
+        {/* Badge Glassmorphism */}
+        <div className="inline-flex items-center justify-center gap-2 mb-8 px-5 py-2 rounded-full border border-emerald-500/20 bg-white/40 backdrop-blur-md shadow-lg shadow-emerald-500/5 animate-fade-in-up">
+            <Leaf className="w-4 h-4 text-emerald-700" />
+            <span className="text-emerald-900 font-bold text-xs tracking-widest uppercase">Catálogo Digital</span>
+        </div>
+        
+        {/* Título Gigante com Degradê */}
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tighter leading-none animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+            <span className="bg-gradient-to-br from-emerald-950 via-emerald-600 to-teal-500 bg-clip-text text-transparent drop-shadow-sm">
+            Flora Ilhéus
+            </span>
+        </h1>
+        
+        {/* Subtítulo */}
+        <p className="text-xl md:text-2xl text-emerald-800/80 font-medium max-w-2xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+            Explore as melhores opções de plantas para o clima da nossa região.
+        </p>
+    </header>
+
+    {/* 2. MENU DE ABAS (STICKY) */}
+    <div className="sticky top-0 z-30 p-4 flex justify-center pointer-events-none">
+        <div className="flex gap-2 bg-white/95 p-1.5 rounded-2xl shadow-xl border border-white/50 pointer-events-auto">
+            <button 
+                onClick={() => setView('catalog')} 
+                className={`px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider transition-all shadow-sm ${view === 'catalog' ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30' : 'bg-transparent text-emerald-800 hover:bg-emerald-50'}`}
+            >
+                Catálogo
+            </button>
+            <button 
+                onClick={() => setView('design')} 
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider transition-all shadow-sm ${view === 'design' ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30' : 'bg-transparent text-emerald-800 hover:bg-emerald-50'}`}
+            >
+                Meu Jardim
+                {selectedPlants.length > 0 && <span className="bg-lime-400 text-emerald-900 text-[10px] px-2 py-0.5 rounded-full animate-pulse">{selectedPlants.length}</span>}
+            </button>
+        </div>
+    </div>
+
+    {/* 3. ÁREA DE CONTEÚDO (LISTA OU JARDIM) */}
+    <div className="px-4 md:px-10 pb-20">
+        {view === 'catalog' ? (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                
+                {/* Contador de plantas (Sem título repetido) */}
+                <div className="flex justify-end items-end mb-4">
+                    <span className="text-xs font-black text-emerald-900/40 uppercase tracking-widest bg-emerald-900/5 px-3 py-1 rounded-lg">
+                        {filteredPlants.length} plantas
+                    </span>
                 </div>
-            </div>
 
-            <div className="px-4 md:px-10 pb-20">
-                {view === 'catalog' ? (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="flex justify-between items-end mb-2">
-                            <div>
-                                <h2 className="text-3xl font-black text-emerald-900 tracking-tight">Catálogo</h2>
-                                <p className="text-emerald-700/60 font-medium">Explore as melhores opções para Ilhéus</p>
-                            </div>
-                            <span className="text-xs font-black text-emerald-900/40 uppercase tracking-widest bg-emerald-900/5 px-3 py-1 rounded-lg">
-                                {filteredPlants.length} plantas
-                            </span>
+                {/* Grid de Plantas */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                    {filteredPlants.map((plant) => (
+                    <PlantCard key={plant.Nome} plant={plant} isSelected={selectedPlants.some(p => p.Nome === plant.Nome)} onToggle={togglePlant} />
+                    ))}
+                </div>
+                
+                {/* Estado Vazio (Sem resultados) */}
+                {filteredPlants.length === 0 && (
+                    <div className="text-center py-32 bg-white/20 backdrop-blur-md rounded-[2.5rem] border-2 border-dashed border-white/40 flex flex-col items-center justify-center">
+                        <div className="bg-white/40 p-4 rounded-full mb-4">
+                            <Leaf size={40} className="text-emerald-400 opacity-50" />
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-                            {filteredPlants.map((plant) => (
-                            <PlantCard key={plant.Nome} plant={plant} isSelected={selectedPlants.some(p => p.Nome === plant.Nome)} onToggle={togglePlant} />
-                            ))}
-                        </div>
-                        
-                        {filteredPlants.length === 0 && (
-                            <div className="text-center py-32 bg-white/20 backdrop-blur-md rounded-[2.5rem] border-2 border-dashed border-white/40 flex flex-col items-center justify-center">
-                                <div className="bg-white/40 p-4 rounded-full mb-4">
-                                    <Leaf size={40} className="text-emerald-400 opacity-50" />
-                                </div>
-                                <p className="text-emerald-900 text-2xl font-black mb-2">Nenhuma planta encontrada.</p>
-                                <p className="text-emerald-700/60 font-medium">Tente ajustar os filtros na barra lateral.</p>
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <GardenPlan selectedPlants={selectedPlants} onRemove={(p) => togglePlant(p)} />
+                        <p className="text-emerald-900 text-2xl font-black mb-2">Nenhuma planta encontrada.</p>
+                        <p className="text-emerald-700/60 font-medium">Tente ajustar os filtros na barra lateral.</p>
                     </div>
                 )}
             </div>
+        ) : (
+            <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <GardenPlan selectedPlants={selectedPlants} onRemove={(p) => togglePlant(p)} />
+            </div>
+        )}
+    </div>
+</main>
         </main>
       </div>
       
