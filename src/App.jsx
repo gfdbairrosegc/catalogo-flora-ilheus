@@ -1,20 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { 
   Leaf, 
-  Sun, 
-  Droplets, 
-  Search, 
-  Plus, 
-  Minus, 
-  Trash2, 
-  MapPin, 
-  Wind,
-  Sprout,
-  ArrowRight,
-  Sparkles,
-  Loader,
-  Activity,
-  Umbrella, 
+    
   Home,     
   Maximize,
   Globe, 
@@ -88,20 +75,7 @@ const plantData = [
         "Frutifera": true,
         "Tags": "Pimenta Rosa; Rústica; Atrai Pássaros"
     },
-    {
-        "Nome": "Bambu Mossô",
-        "Nome Científico": "Phyllostachys pubescens",
-        "Descrição": "Bambu de grande porte, visual escultural e moderno para grandes áreas.",
-        "Altura": "10-15 m",
-        "Luz Solar": "Sol Pleno",
-        "Necessidade de Água": "Alta",
-        "Espacos": ["Quintal (Grande)"],
-        "Dificuldade": "Moderada",
-        "Origem": "Exótica",
-        "Grupo": "Arbusto",
-        "Frutifera": false,
-        "Tags": "Barreira Visual; Crescimento Rápido"
-    },
+    
     {
         "Nome": "Bromélia Imperial",
         "Nome Científico": "Alcantarea imperialis",
@@ -200,20 +174,7 @@ const plantData = [
         "Frutifera": false,
         "Tags": "Forração; Flores Amarelas; Sem Poda"
     },
-    {
-        "Nome": "Grama Coreana",
-        "Nome Científico": "Zoysia tenuifolia",
-        "Descrição": "Folhas muito finas que formam 'montinhos' ornamentais. Crescimento lento, ideal para jardins japoneses.",
-        "Altura": "0.1 m",
-        "Luz Solar": "Sol Pleno",
-        "Necessidade de Água": "Média",
-        "Espacos": ["Jardim (Médio)"],
-        "Dificuldade": "Moderada",
-        "Origem": "Exótica",
-        "Grupo": "Gramado",
-        "Frutifera": false,
-        "Tags": "Ornamental; Textura Fina; Entre Pedras"
-    },
+    
     {
         "Nome": "Grama Esmeralda",
         "Nome Científico": "Zoysia japonica",
@@ -228,20 +189,7 @@ const plantData = [
         "Frutifera": false,
         "Tags": "Forração; Resistente ao Pisoteio"
     },
-    {
-        "Nome": "Grama Preta",
-        "Nome Científico": "Ophiopogon japonicus",
-        "Descrição": "Não é uma grama verdadeira, mas uma touceira ornamental escura. Perfeita para bordas e áreas de sombra total.",
-        "Altura": "0.2 m",
-        "Luz Solar": "Sombra",
-        "Necessidade de Água": "Média",
-        "Espacos": ["Jardim (Médio)", "Apartamento/Varanda"],
-        "Dificuldade": "Fácil",
-        "Origem": "Exótica",
-        "Grupo": "Forração",
-        "Frutifera": false,
-        "Tags": "Ornamental; Sombra; Bordadura"
-    },
+    
     {
         "Nome": "Grama Santo Agostinho",
         "Nome Científico": "Stenotaphrum secundatum",
@@ -256,20 +204,7 @@ const plantData = [
         "Frutifera": false,
         "Tags": "Gramado; Litoral; Resistente à Maresia"
     },
-    {
-        "Nome": "Grama São Carlos",
-        "Nome Científico": "Axonopus compressus",
-        "Descrição": "Folhas largas e verde intenso. A melhor opção para áreas úmidas ou sombreadas onde outras gramas falham.",
-        "Altura": "0.15 m",
-        "Luz Solar": "Meia Sombra",
-        "Necessidade de Água": "Alta",
-        "Espacos": ["Quintal (Grande)", "Jardim (Médio)"],
-        "Dificuldade": "Fácil",
-        "Origem": "Nativa",
-        "Grupo": "Gramado",
-        "Frutifera": false,
-        "Tags": "Gramado; Sombra; Áreas Úmidas"
-    },
+    
     {
         "Nome": "Grumixama",
         "Nome Científico": "Eugenia brasiliensis",
