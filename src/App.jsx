@@ -812,8 +812,8 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
       const cleanKey = apiKey.trim(); // Garante que a chave não tem espaços
       
       // URL montada manualmente para evitar erro de variável
-      // Use v1beta para modelos como gemini-1.5-flash (v1 não suporta)
-      const finalUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cleanKey}`;
+      // Usando modelo disponível para sua chave: gemini-flash-latest
+      const finalUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${cleanKey}`;
 
       console.log("Chamando API em:", finalUrl); 
 
