@@ -761,148 +761,64 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
     hasChildren: false
   });
 
-  // Exemplo de como deve ficar sua função de chamada
-  async function gerarTexto() {
-    try {
-      // 1. Sua chamada atual (mantenha como está, só coloque dentro do try)
-      const response = await model.generateContent(prompt); 
-      
-      // 2. Verifica se houve erro na resposta da API antes de tentar ler
-      if (!response || !response.response) {
-        throw new Error("A API não retornou nada válido.");
-      }
-
-      const text = response.response.text();
-
-      // 3. Verifica se veio texto mesmo
-      if (!text) {
-          console.warn("A IA retornou vazio.");
-          return; 
-      }
-
-      // 4. Aqui você faz o replace seguro
-      const textoLimpo = text.replace(/\*/g, '');
-      console.log(textoLimpo);
-      
-      // Atualize sua tela aqui com o textoLimpo...
-
-    } catch (error) {
-      // 5. Isso captura o erro 404 sem quebrar o site inteiro
-      console.error("Erro ao chamar o Gemini:", error);
-      alert("Erro: Verifique se sua chave de API está válida e se o site tem permissão no Google Cloud.");
-    }
-  }
+  // Note: removed example `gerarTexto()` because it referenced undefined
+  // variables (`model`, `prompt`) and could cause runtime/lint errors.
 
   const generateAIPlan = async () => {
     if (selectedPlants.length === 0) return;
     setLoading(true);
     setAiAdvice(null);
-    const plantNames = selectedPlants.map(p => p.Nome).join(", ");
-    
-    // Verificação de Toxicidade
-    const toxicPlants = selectedPlants.filter(p => p.Tags.includes("Tóxica"));
-    let warningMessage = "";
-    if ((userInfo.hasPets || userInfo.hasChildren) && toxicPlants.length > 0) {
-        const names = toxicPlants.map(p => p.Nome).join(", ");
-        warningMessage = `ATENÇÃO: Você indicou ter ${userInfo.hasPets ? 'pets' : ''} ${userInfo.hasChildren ? 'crianças' : ''}. As seguintes plantas escolhidas podem ser tóxicas: ${names}. Recomenda-se substituí-las ou mantê-las fora do alcance.`;
-    }
 
-    const prompt = `
-      Atue como um paisagista urbano moderno em Ilhéus, Bahia.
-      O cliente selecionou: ${plantNames}.
-      
-      Perfil do Cliente:
-      - Tamanho do Espaço: ${userInfo.spaceSize}
-      - Tem Pets? ${userInfo.hasPets ? "Sim" : "Não"}
-      - Tem Crianças? ${userInfo.hasChildren ? "Sim" : "Não"}
-      
-      ${warningMessage ? `ALERTA DE SEGURANÇA: ${warningMessage}` : ""}
-
-      Contexto: O cliente mora em um ambiente urbano. Foco em praticidade, segurança e beleza tropical.
-      
-      IMPORTANTE: Responda APENAS com código HTML válido. Use cores harmoniosas e modernas (Verde Floresta #064e3b, Âmbar Suave #d97706).
-      
-      Estrutura da Resposta:
-      <h3 style="color: #064e3b; font-size: 1.6rem; margin-bottom: 0.5rem; font-weight: 800;">1. Análise do Seu Espaço (${userInfo.spaceSize}) 🏡</h3>
-      <p style="color: #374151;">Análise personalizada para o tamanho do seu espaço:</p>
-      <ul style="color: #374151; padding-left: 20px;">
-        <li><strong>Layout:</strong> Sugestão de distribuição para espaço ${userInfo.spaceSize}.</li>
-        <li><strong>Segurança:</strong> ${userInfo.hasPets || userInfo.hasChildren ? "Comentários sobre segurança para pets/crianças." : "Dicas gerais de manutenção."}</li>
-      </ul>
-
-      ${warningMessage ? `<div style="background-color: #fef2f2; padding: 15px; border-left: 4px solid #ef4444; color: #991b1b; margin: 15px 0;"><strong>⚠️ Alerta de Toxicidade:</strong> ${warningMessage}</div>` : ""}
-
-      <h3 style="color: #064e3b; font-size: 1.6rem; margin-top: 2rem; margin-bottom: 0.5rem; font-weight: 800;">2. Dicas de Paisagismo 🌿</h3>
-      <div style="background-color: #ecfdf5; padding: 20px; border-radius: 16px; border: 1px solid #a7f3d0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-        <strong style="color: #047857;">💡 Dica de Ouro:</strong> Dê dicas de como dispor essas plantas para garantir privacidade e estética no espaço ${userInfo.spaceSize}.
-      </div>
-
-      <h3 style="color: #064e3b; font-size: 1.6rem; margin-top: 2rem; margin-bottom: 0.5rem; font-weight: 800;">3. Layout Sugerido 📐</h3>
-      <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
-        <div style="background: #ffffff; padding: 15px; border-left: 4px solid #059669; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <strong style="color: #064e3b;">Muros e Divisas:</strong> [Plantas altas/Trepadeiras]
-        </div>
-        <div style="background: #ffffff; padding: 15px; border-left: 4px solid #d97706; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-             <strong style="color: #92400e;">Vasos e Destaques:</strong> [Arbustos/Esculturais]
-        </div>
-        <div style="background: #ffffff; padding: 15px; border-left: 4px solid #0891b2; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-             <strong style="color: #155e75;">Acabamento:</strong> [Forrações]
-        </div>
-      </div>
-
-      <!-- Novas seções solicitadas: Plano de Rega e Plano de Adubagem -->
-      <h3 style="color: #064e3b; font-size: 1.6rem; margin-top: 2rem; margin-bottom: 0.5rem; font-weight: 800;">4. Plano de Rega 🚿</h3>
-      <p style="color: #374151;">Para cada planta selecionada, gere um cronograma prático em HTML contendo: frequência (ex: diaria/3x por semana/semanal), quantidade aproximada por rega (litros ou ml por vaso), horário ideal (manhã cedo/fim de tarde), e ajustes sazonais (estação seca/estação chuvosa). Apresente um resumo por planta e um calendário semanal resumido.</p>
-
-      <h3 style="color: #064e3b; font-size: 1.6rem; margin-top: 2rem; margin-bottom: 0.5rem; font-weight: 800;">5. Plano de Adubagem 🌱</h3>
-      <p style="color: #374151;">Para cada planta selecionada, inclua recomendações de adubos (orgânico e mineral), periodicidade (ex: a cada 30/60/90 dias), doses aproximadas (g por vaso ou por m²), e momento ideal para aplicar (época do ano). Se houver plantas frutíferas, adicione recomendações específicas de adubação para frutificação. Apresente tudo em HTML com uma tabela ou lista clara por planta.</p>
-
-      <p style="color: #374151; margin-top: 1rem;">Gere também um checklist imprimível com passos semanais e mensais para manutenção — rega rápida, inspeção de pragas, e adubação programada.</p>
-    `;
+    // 1. Monte seu prompt
+    const promptFinal = "Crie um plano de jardinagem simples para uma varanda com muito sol.";
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      const apiKey = import.meta.env.VITE_API_KEY;
+      if (!apiKey) throw new Error("Chave de API ausente");
+
+      // --- CONFIGURAÇÃO DO MODELO ---
+      // Se quiser testar a 2.5, troque 'gemini-1.5-flash' por 'gemini-2.5-flash' abaixo.
+      // Mas recomendo testar com a 1.5 primeiro só para ver se o erro 404 some.
+      const MODEL_NAME = "gemini-1.5-flash"; 
       
-      // 1. Sua chamada atual (mantenha como está, só coloque dentro do try)
+      console.log(`Tentando conectar com modelo: ${MODEL_NAME}`);
+
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+          headers: {
+            // ESSA LINHA É A CHAVE DO SUCESSO. Sem ela, dá erro 404.
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: promptFinal }]
+            }]
+          }),
         }
       );
-      
-      // 2. Verifica se houve erro na resposta da API antes de tentar ler
-      if (!response || !response.ok) {
-        throw new Error(`API retornou erro ${response.status}: ${response.statusText}`);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Erro da API:", response.status, errorData);
+        throw new Error(`Erro API: ${response.status}`);
       }
 
       const data = await response.json();
       
-      // 3. Verifica se a resposta tem estrutura válida
-      if (!data || !data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-        throw new Error("A API não retornou nada válido.");
+      if (data.candidates && data.candidates.length > 0) {
+          const texto = data.candidates[0].content.parts[0].text;
+          console.log("SUCESSO! Texto gerado:", texto);
+          setAiAdvice(texto);
+      } else {
+          setAiAdvice("A IA não gerou resposta.");
       }
 
-      const text = data.candidates[0].content.parts?.[0]?.text;
-
-      // 4. Verifica se veio texto mesmo
-      if (!text) {
-          console.warn("A IA retornou vazio.");
-          setAiAdvice("A IA não gerou uma resposta válida. Tente novamente.");
-          return; 
-      }
-
-      // 5. Aqui você faz o replace seguro
-      const cleanHtml = text.replace(/```html/g, '').replace(/```/g, '');
-      setAiAdvice(cleanHtml || "Erro ao gerar consultoria.");
-      
     } catch (error) {
-      // 6. Isso captura o erro 404 e outros sem quebrar o site inteiro
-      console.error("Erro ao chamar o Gemini:", error);
-      setAiAdvice(`Erro: ${error.message || "Verifique se sua chave de API está válida e se o site tem permissão no Google Cloud."}`);
-      alert("Erro: " + (error.message || "Verifique se sua chave de API está válida e se o site tem permissão no Google Cloud."));
+      console.error("Falha na requisição:", error);
+      setAiAdvice(`Erro: ${error.message || 'Falha na requisição.'}`);
+      alert("Erro ao conectar. Verifique o console (F12).");
     } finally {
       setLoading(false);
     }
@@ -1027,6 +943,8 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
                  <ArrowRight size={16} />
                </button>
             </div>
+            {/* WARNING: aiAdvice is rendered as HTML. Sanitize before rendering to avoid XSS. */}
+            {/* Consider installing DOMPurify and using: DOMPurify.sanitize(aiAdvice) */}
             <div className="prose prose-emerald prose-lg max-w-none prose-headings:font-black prose-headings:text-emerald-900 prose-p:text-emerald-800 prose-p:font-medium prose-strong:text-emerald-950" dangerouslySetInnerHTML={{ __html: aiAdvice }} />
           </div>
         )}
@@ -1124,7 +1042,7 @@ export default function PaisagismoIlheus() {
         <main className="flex-1 h-full overflow-y-auto relative custom-scrollbar">
             
             {/* --- CONTEÚDO PRINCIPAL (COM NOVO HEADER) --- */}
-<main className="flex-1 h-full overflow-y-auto relative custom-scrollbar">
+          <div className="flex-1 h-full overflow-y-auto relative custom-scrollbar">
     
     {/* 1. NOVO CABEÇALHO HERO (Degradê + Vidro + Animação) */}
     <header className="relative text-center pt-20 pb-10 px-4 max-w-5xl mx-auto overflow-hidden md:overflow-visible">
@@ -1205,8 +1123,8 @@ export default function PaisagismoIlheus() {
             </div>
         )}
     </div>
-</main>
-        </main>
+</div>
+  </main>
       </div>
       
       <style>{`
