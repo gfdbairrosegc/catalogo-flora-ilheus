@@ -18,6 +18,7 @@ import {
   Sprout,   // Adicionado
   Wind,     // Adicionado
   Minus,    // Adicionado
+  Plus,     // Adicionado
   Trash2,   // Adicionado
   Sparkles, // Adicionado
   Loader,   // Adicionado
