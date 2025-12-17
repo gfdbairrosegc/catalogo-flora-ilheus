@@ -13,7 +13,15 @@ import {
   Baby,     // Adicionado para corrigir o erro
   Smile,    // Adicionado
   Search,   // Adicionado
-  Sun       // Adicionado
+  Sun,      // Adicionado
+  Activity, // Adicionado
+  Sprout,   // Adicionado
+  Wind,     // Adicionado
+  Minus,    // Adicionado
+  Trash2,   // Adicionado
+  Sparkles, // Adicionado
+  Loader,   // Adicionado
+  ArrowRight // Adicionado
 } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DE IMAGENS ---
