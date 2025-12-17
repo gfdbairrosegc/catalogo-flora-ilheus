@@ -1003,9 +1003,9 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         };
 
         const selectedSpaceCat = getSpaceCategory(spaceKeyNorm);
+        const allowedKeywords = spaceKeywordsMap[selectedSpaceCat] || [];
         const reMoved = [];
         if (selectedSpaceCat) {
-          const allowedKeywords = spaceKeywordsMap[selectedSpaceCat] || [];
           const newPlacements = [];
           for (const s of placements) {
             const plantName = String(s.plant || '').toLowerCase();
