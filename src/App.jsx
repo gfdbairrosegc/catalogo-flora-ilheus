@@ -817,6 +817,15 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
              <strong style="color: #155e75;">Acabamento:</strong> [Forrações]
         </div>
       </div>
+
+      <!-- Novas seções solicitadas: Plano de Rega e Plano de Adubagem -->
+      <h3 style="color: #064e3b; font-size: 1.6rem; margin-top: 2rem; margin-bottom: 0.5rem; font-weight: 800;">4. Plano de Rega 🚿</h3>
+      <p style="color: #374151;">Para cada planta selecionada, gere um cronograma prático em HTML contendo: frequência (ex: diaria/3x por semana/semanal), quantidade aproximada por rega (litros ou ml por vaso), horário ideal (manhã cedo/fim de tarde), e ajustes sazonais (estação seca/estação chuvosa). Apresente um resumo por planta e um calendário semanal resumido.</p>
+
+      <h3 style="color: #064e3b; font-size: 1.6rem; margin-top: 2rem; margin-bottom: 0.5rem; font-weight: 800;">5. Plano de Adubagem 🌱</h3>
+      <p style="color: #374151;">Para cada planta selecionada, inclua recomendações de adubos (orgânico e mineral), periodicidade (ex: a cada 30/60/90 dias), doses aproximadas (g por vaso ou por m²), e momento ideal para aplicar (época do ano). Se houver plantas frutíferas, adicione recomendações específicas de adubação para frutificação. Apresente tudo em HTML com uma tabela ou lista clara por planta.</p>
+
+      <p style="color: #374151; margin-top: 1rem;">Gere também um checklist imprimível com passos semanais e mensais para manutenção — rega rápida, inspeção de pragas, e adubação programada.</p>
     `;
 
     try {
