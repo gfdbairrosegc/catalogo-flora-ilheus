@@ -25,3 +25,5 @@ dist/*
 *.sln
 *.sw?
 .env
+dist/assets
+dist/assets/*
