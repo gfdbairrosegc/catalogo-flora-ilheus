@@ -840,8 +840,10 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
       const data = await response.json();
       
       if (data.candidates && data.candidates.length > 0) {
-          const texto = data.candidates[0].content.parts[0].text;
+          let texto = data.candidates[0].content.parts[0].text;
           console.log("SUCESSO! Texto gerado:", texto);
+          // Limpa formatação de markdown e backticks
+          texto = texto.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
           setAiAdvice(texto);
       } else {
           setAiAdvice("A IA não gerou resposta.");
@@ -934,7 +936,7 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
             {selectedPlants.map(plant => (
               <div key={plant.Nome} className="flex items-center bg-white/70 backdrop-blur-md p-4 rounded-2xl border border-white/60 shadow-lg relative group hover:shadow-xl hover:bg-white/90 transition-all hover:-translate-y-1">
-                <img src={formatImageURL(plant.Imagem, plant.Nome)} className="w-20 h-20 rounded-xl object-cover shadow-sm" alt="" onError={(e) => { e.target.src = `https://placehold.co/100x100/e2e8f0/1e293b?text=${encodeURIComponent(plant.Nome.charAt(0))}`; }} />
+                <img src={getPlantImage(plant.Nome)} className="w-20 h-20 rounded-xl object-cover shadow-sm" alt={plant.Nome} onError={(e) => { e.target.src = `https://placehold.co/100x100/e2e8f0/1e293b?text=${encodeURIComponent(plant.Nome.charAt(0))}`; }} />
                 <div className="ml-4">
                   <h4 className="font-black text-emerald-900 text-lg">{plant.Nome}</h4>
                   <div className="flex gap-2 mt-1">
