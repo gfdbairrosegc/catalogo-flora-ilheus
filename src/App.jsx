@@ -1037,7 +1037,33 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         html += `<h2 class="text-2xl font-bold text-emerald-900 mb-4">Seu Projeto Paisagístico</h2>`;
         html += `<div class="ai-overview mb-6 p-4 bg-emerald-50/50 rounded-lg">${markdownToHtml(projectOverview)}</div>`;
 
-        // SEÇÃO 1: PLANTAS ESCOLHIDAS COM REGA/ADUBAGEM
+        // SEÇÃO 0: INCOMPATIBILIDADE COM TAMANHO DO ESPAÇO (mostrar primeiro)
+        const placementsSet = new Set(placements.map(p => String(p.plant).toLowerCase()));
+        const incompatibleWarnings = (Array.isArray(reMoved) ? reMoved : []).map(s => {
+          const plantName = String(s.plant || '').toLowerCase();
+          const plant = plantData.find(p => p.Nome.toLowerCase() === plantName);
+          return {
+            plant: plant ? plant.Nome : s.plant,
+            reason: plant && Array.isArray(plant.Espacos) 
+              ? `Disponível em: ${plant.Espacos.join(', ')}. Você selecionou: ${userInfo.spaceSize}.`
+              : `Não compatível com ${userInfo.spaceSize}.`
+          };
+        });
+
+        if (incompatibleWarnings.length > 0) {
+          html += `<div class="p-6 rounded-2xl bg-orange-50 border-2 border-orange-300 mb-6">
+            <h3 class="text-lg font-bold text-orange-900 mb-4 flex items-center gap-2">🚫 Plantas Incompatíveis com o Espaço</h3>
+            <div class="grid gap-3">`;
+          incompatibleWarnings.forEach(w => {
+            html += `<div class="p-4 rounded-lg bg-white border border-orange-200">
+              <strong class="text-orange-900">${w.plant}</strong>
+              <div class="text-sm text-orange-800 mt-1">${w.reason}</div>
+            </div>`;
+          });
+          html += `</div></div>`;
+        }
+
+        // SEÇÃO 1: PLANTAS ESCOLHIDAS COM REGA/ADUBAGEM (que se adequam ao espaço)
         html += `<h3 class="text-xl font-bold text-emerald-900 mt-8 mb-4 border-b-2 border-emerald-500 pb-2">Plantas Escolhidas para o Projeto</h3>`;
         if (placements.length === 0) {
           html += `<div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800">Nenhuma planta válida foi posicionada. Tente ajustar sua seleção.</div>`;
@@ -1081,7 +1107,6 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         }
 
         // SEÇÃO 3: ALERTAS DE TOXICIDADE (se aplicável)
-        const placementsSet = new Set(placements.map(p => String(p.plant).toLowerCase()));
         const alternativesSet = new Set(alternatives.map(a => String(a.plant).toLowerCase()));
         const finalCautions = (Array.isArray(cautions) ? cautions : []).filter(c => c && c.plant && (selectedSet.has(String(c.plant).toLowerCase()) || placementsSet.has(String(c.plant).toLowerCase()) || alternativesSet.has(String(c.plant).toLowerCase())));
         if (finalCautions && finalCautions.length > 0) {
