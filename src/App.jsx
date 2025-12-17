@@ -776,19 +776,17 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
       const apiKey = import.meta.env.VITE_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API;
       if (!apiKey) throw new Error("Chave de API ausente. Verifique VITE_API_KEY ou VITE_GEMINI_API_KEY no .env");
 
-      // --- CONFIGURAÇÃO DO MODELO ---
-      // Se quiser testar a 2.5, troque 'gemini-1.5-flash' por 'gemini-2.5-flash' abaixo.
-      // Mas recomendo testar com a 1.5 primeiro só para ver se o erro 404 some.
-      const MODEL_NAME = "gemini-1.5-flash"; 
+      // --- CÓDIGO CORRIGIDO ---
+      const cleanKey = apiKey.trim(); // Garante que a chave não tem espaços
       
-      console.log(`Tentando conectar com modelo: ${MODEL_NAME}`);
+      // URL montada manualmente para evitar erro de variável
+      const finalUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${cleanKey}`;
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`,
-        {
+      console.log("Chamando API em:", finalUrl); 
+
+      const response = await fetch(finalUrl, {
           method: "POST",
           headers: {
-            // ESSA LINHA É A CHAVE DO SUCESSO. Sem ela, dá erro 404.
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -798,6 +796,7 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
           }),
         }
       );
+      // ------------------------
 
       if (!response.ok) {
         const errText = await response.text().catch(() => null);
