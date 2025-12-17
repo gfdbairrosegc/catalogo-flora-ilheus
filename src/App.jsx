@@ -827,7 +827,7 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
   const [aiAdvice, setAiAdvice] = useState(null);
   const [loading, setLoading] = useState(false);
   const [userInfo, setUserInfo] = useState({
-    spaceSize: 'Médio',
+    spaceSize: 'Pequeno (Varanda)',
     hasPets: false,
     hasChildren: false
   });
@@ -1093,7 +1093,19 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         }
 
         // SEÇÃO 2: PLANTAS ALTERNATIVAS SUGERIDAS
-        const validAlternatives = (Array.isArray(alternatives) ? alternatives : []).filter(a => a.plant && validPlants.has(a.plant.toLowerCase()) && !selectedSet.has(a.plant.toLowerCase()));
+        // Filter alternatives: must be valid plants, not selected, and compatible with the space
+        const removedSet = new Set((Array.isArray(reMoved) ? reMoved : []).map(r => String(r.plant || '').toLowerCase()));
+        const validAlternatives = (Array.isArray(alternatives) ? alternatives : []).filter(a => {
+          const plantName = String(a.plant || '').toLowerCase();
+          // Exclude if selected, incompatible with space, or removed due to incompatibility
+          if (!validPlants.has(plantName) || selectedSet.has(plantName) || removedSet.has(plantName)) return false;
+          // Check space compatibility for this alternative
+          const altPlant = plantData.find(p => p.Nome.toLowerCase() === plantName);
+          if (!altPlant || !Array.isArray(altPlant.Espacos)) return true; // if no Espacos info, conservatively allow
+          const altEspacos = altPlant.Espacos.map(e => String(e).toLowerCase());
+          const altAllowed = altEspacos.some(e => allowedKeywords.some(k => e.includes(k)));
+          return altAllowed;
+        });
         if (validAlternatives.length > 0) {
           html += `<h3 class="text-xl font-bold text-emerald-900 mt-8 mb-4 border-b-2 border-lime-500 pb-2">Outras plantas que podem se encaixar</h3>`;
           html += '<div class="grid gap-3">';
@@ -1107,8 +1119,15 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         }
 
         // SEÇÃO 3: ALERTAS DE TOXICIDADE (se aplicável)
-        const alternativesSet = new Set(alternatives.map(a => String(a.plant).toLowerCase()));
-        const finalCautions = (Array.isArray(cautions) ? cautions : []).filter(c => c && c.plant && (selectedSet.has(String(c.plant).toLowerCase()) || placementsSet.has(String(c.plant).toLowerCase()) || alternativesSet.has(String(c.plant).toLowerCase())));
+        // Exclude cautions for plants that are incompatible with space (they're already in reMoved)
+        const alternativesSet = new Set(validAlternatives.map(a => String(a.plant).toLowerCase()));
+        const finalCautions = (Array.isArray(cautions) ? cautions : []).filter(c => {
+          const cPlantLower = String(c.plant).toLowerCase();
+          // Exclude if it's a plant that was removed due to space incompatibility
+          if (removedSet.has(cPlantLower)) return false;
+          // Include only if relevant to placements, alternatives, or selected plants
+          return selectedSet.has(cPlantLower) || placementsSet.has(cPlantLower) || alternativesSet.has(cPlantLower);
+        });
         if (finalCautions && finalCautions.length > 0) {
           html += `<h3 class="text-lg font-bold text-rose-900 mt-8 mb-4 border-b-2 border-rose-500 pb-2">⚠️ Plantas Tóxicas - Dicas de Segurança</h3>`;
           html += '<div class="grid gap-3">';
