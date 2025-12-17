@@ -761,6 +761,38 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
     hasChildren: false
   });
 
+  // Exemplo de como deve ficar sua função de chamada
+  async function gerarTexto() {
+    try {
+      // 1. Sua chamada atual (mantenha como está, só coloque dentro do try)
+      const response = await model.generateContent(prompt); 
+      
+      // 2. Verifica se houve erro na resposta da API antes de tentar ler
+      if (!response || !response.response) {
+        throw new Error("A API não retornou nada válido.");
+      }
+
+      const text = response.response.text();
+
+      // 3. Verifica se veio texto mesmo
+      if (!text) {
+          console.warn("A IA retornou vazio.");
+          return; 
+      }
+
+      // 4. Aqui você faz o replace seguro
+      const textoLimpo = text.replace(/\*/g, '');
+      console.log(textoLimpo);
+      
+      // Atualize sua tela aqui com o textoLimpo...
+
+    } catch (error) {
+      // 5. Isso captura o erro 404 sem quebrar o site inteiro
+      console.error("Erro ao chamar o Gemini:", error);
+      alert("Erro: Verifique se sua chave de API está válida e se o site tem permissão no Google Cloud.");
+    }
+  }
+
   const generateAIPlan = async () => {
     if (selectedPlants.length === 0) return;
     setLoading(true);
@@ -830,6 +862,8 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
 
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      
+      // 1. Sua chamada atual (mantenha como está, só coloque dentro do try)
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         {
@@ -838,13 +872,37 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
           body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
         }
       );
+      
+      // 2. Verifica se houve erro na resposta da API antes de tentar ler
+      if (!response || !response.ok) {
+        throw new Error(`API retornou erro ${response.status}: ${response.statusText}`);
+      }
+
       const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      // 3. Verifica se a resposta tem estrutura válida
+      if (!data || !data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+        throw new Error("A API não retornou nada válido.");
+      }
+
+      const text = data.candidates[0].content.parts?.[0]?.text;
+
+      // 4. Verifica se veio texto mesmo
+      if (!text) {
+          console.warn("A IA retornou vazio.");
+          setAiAdvice("A IA não gerou uma resposta válida. Tente novamente.");
+          return; 
+      }
+
+      // 5. Aqui você faz o replace seguro
       const cleanHtml = text.replace(/```html/g, '').replace(/```/g, '');
       setAiAdvice(cleanHtml || "Erro ao gerar consultoria.");
+      
     } catch (error) {
-      console.error("Erro na AI:", error);
-      setAiAdvice("Erro na conexão.");
+      // 6. Isso captura o erro 404 e outros sem quebrar o site inteiro
+      console.error("Erro ao chamar o Gemini:", error);
+      setAiAdvice(`Erro: ${error.message || "Verifique se sua chave de API está válida e se o site tem permissão no Google Cloud."}`);
+      alert("Erro: " + (error.message || "Verifique se sua chave de API está válida e se o site tem permissão no Google Cloud."));
     } finally {
       setLoading(false);
     }
