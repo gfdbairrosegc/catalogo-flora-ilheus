@@ -582,6 +582,49 @@ const getPlantImage = (plantName) => {
   return `${basePath}images/${cleanName}.jpg`;
 };
 
+// Converte uma string simples em Markdown para HTML básico (headings, listas, bold/italic, links)
+// NOTA: o resultado NÃO é sanitizado — em produção, use DOMPurify.sanitize(html) antes de inserir no DOM.
+const markdownToHtml = (md) => {
+  if (!md) return '';
+  const lines = md.split(/\r?\n/);
+  let out = '';
+  let inList = false;
+
+  for (let rawLine of lines) {
+    const line = rawLine.trim();
+    if (line === '') {
+      if (inList) { out += '</ul>'; inList = false; }
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,6})\s+(.*)$/);
+    if (heading) {
+      if (inList) { out += '</ul>'; inList = false; }
+      const level = heading[1].length;
+      out += `<h${level}>${heading[2]}</h${level}>`;
+      continue;
+    }
+
+    const listItem = line.match(/^[-*+]\s+(.*)$/);
+    if (listItem) {
+      if (!inList) { inList = true; out += '<ul>'; }
+      out += `<li>${listItem[1]}</li>`;
+      continue;
+    }
+
+    // Inline formatting: bold, italic, links
+    let inline = line
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+    out += `<p>${inline}</p>`;
+  }
+
+  if (inList) out += '</ul>';
+  return out;
+};
+
 // --- COMPONENTS ---
 
 const FilterSelect = ({ label, options, selected, onChange, icon: Icon }) => (
