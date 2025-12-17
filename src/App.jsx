@@ -842,9 +842,11 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
       if (data.candidates && data.candidates.length > 0) {
           let texto = data.candidates[0].content.parts[0].text;
           console.log("SUCESSO! Texto gerado:", texto);
-          // Limpa formatação de markdown e backticks
+          // Limpa formatação de blocos de código
           texto = texto.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
-          setAiAdvice(texto);
+          // Se a resposta já vier em HTML, use diretamente, caso contrário converta Markdown -> HTML
+          const html = texto.trim().startsWith('<') ? texto : markdownToHtml(texto);
+          setAiAdvice(html);
       } else {
           setAiAdvice("A IA não gerou resposta.");
       }
