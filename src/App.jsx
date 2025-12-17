@@ -764,6 +764,38 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
   // Note: removed example `gerarTexto()` because it referenced undefined
   // variables (`model`, `prompt`) and could cause runtime/lint errors.
 
+  // Função para testar modelos disponíveis
+  const testAvailableModels = async () => {
+    try {
+      const apiKey = import.meta.env.VITE_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API;
+      if (!apiKey) {
+        console.error("Chave de API ausente");
+        return;
+      }
+      
+      const cleanKey = apiKey.trim();
+      const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${cleanKey}`;
+      
+      console.log("Listando modelos disponíveis...");
+      const response = await fetch(listUrl);
+      const data = await response.json();
+      
+      if (data.models && data.models.length > 0) {
+        console.log("✅ Modelos disponíveis:");
+        data.models.forEach(model => {
+          console.log(`  - ${model.name} (versão: ${model.version})`);
+        });
+        // Retorna o primeiro modelo disponível
+        const firstModel = data.models[0].name.split('/').pop();
+        console.log(`\n📌 Use este modelo: "${firstModel}"`);
+      } else {
+        console.error("Nenhum modelo encontrado. Verifique sua chave de API e permissões no Google Cloud.");
+      }
+    } catch (error) {
+      console.error("Erro ao listar modelos:", error);
+    }
+  };
+
   const generateAIPlan = async () => {
     if (selectedPlants.length === 0) return;
     setLoading(true);
@@ -780,7 +812,8 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
       const cleanKey = apiKey.trim(); // Garante que a chave não tem espaços
       
       // URL montada manualmente para evitar erro de variável
-      const finalUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${cleanKey}`;
+      // Use v1beta para modelos como gemini-1.5-flash (v1 não suporta)
+      const finalUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cleanKey}`;
 
       console.log("Chamando API em:", finalUrl); 
 
