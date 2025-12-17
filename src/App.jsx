@@ -343,6 +343,34 @@ const plantData = [
         "Tags": "Frutífera; Uso de Madeira"
     },
     {
+        "Nome": "Acerola",
+        "Nome Científico": "Malpighia emarginata",
+        "Descrição": "Arbusto frutífero com alta concentração de vitamina C. Frutos vermelhos apetitosos e floração delicada.",
+        "Altura": "1-4 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Arbusto",
+        "Frutifera": true,
+        "Tags": "Frutífera; Atrai Pássaros; Vitamina C"
+    },
+    {
+        "Nome": "Jambo",
+        "Nome Científico": "Syzygium malaccense",
+        "Descrição": "Árvore tropical com frutos carnudos e saborosos. Folhagem densa e flores brancas perfumadas.",
+        "Altura": "5-10 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Alta",
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Exótica",
+        "Grupo": "Árvore",
+        "Frutifera": true,
+        "Tags": "Frutífera; Tropical; Atrai Pássaros; Flores Perfumadas"
+    },
+    {
         "Nome": "Jequitibá-rosa",
         "Nome Científico": "Cariniana legalis",
         "Descrição": "O gigante da floresta. Árvore monumental para grandes espaços e parques.",
