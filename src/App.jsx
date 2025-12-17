@@ -903,8 +903,15 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
       const userHasChildren = userInfo.hasChildren ? true : false;
       const spaceSize = userInfo.spaceSize;
 
+      // Add stricter constraints for very small spaces (varanda) so the model avoids trees and lawns
+      let extraSpaceConstraints = '';
+      const spaceKey = String(spaceSize || '').toLowerCase();
+      if (spaceKey.includes('varanda') || spaceKey.includes('pequeno')) {
+        extraSpaceConstraints = 'IMPORTANTE: O espaço é Pequeno (Varanda). NÃO sugira árvores, gramados/"grama" ou plantas que precisem ser plantadas diretamente no solo. Sugira apenas plantas em vasos, pendentes ou soluções compatíveis com varanda.';
+      }
+
       const jsonInstruction = `Você é um assistente de paisagismo. Use APENAS plantas da lista fornecida. Disponíveis: ${availableNames}. Selecionadas: ${selectedNames}. ` +
-        `Informações do usuário: espaço=${spaceSize}, temPets=${userHasPets}, temCrianças=${userHasChildren}. ` +
+        `Informações do usuário: espaço=${spaceSize}, temPets=${userHasPets}, temCrianças=${userHasChildren}. ${extraSpaceConstraints} ` +
         `ESTRUTURA DO JSON: { "project": { "overview": "texto curto", "placements": [{ "plant": "Nome", "location": "onde", "reason": "motivo", "watering": "frequência (ex: 2x por semana)", "fertilizing": "plano (ex: mensal com NPK 10-10-10)" }] }, "cautions": [{ "plant": "Nome (se tóxica)", "toxicity": "breve descrição", "safety_tip": "como usar com segurança (ex: colocar num local alto, longe de pets)" }], "alternatives": [{ "plant": "Nome", "reason": "por quê" }], "notes": "observações" }. Para cada planta SELECIONADA, inclua um plano específico de rega e adubagem baseado em suas necessidades. Se temPets ou temCrianças for true, NÃO coloque plantas tóxicas em 'placements'; coloque em 'cautions' com uma dica de segurança. Retorne apenas JSON, sem texto adicional.`;
 
       const prompt = `${promptFinal}\n\n${jsonInstruction}`;
@@ -945,26 +952,29 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         const projectPlacements = Array.isArray(parsed?.project?.placements) ? parsed.project.placements : (Array.isArray(parsed.suggestions) ? parsed.suggestions : []);
         const projectOverview = parsed?.project?.overview || parsed.overview || '';
         let alternatives = Array.isArray(parsed?.alternatives) ? parsed.alternatives.slice() : (Array.isArray(parsed.otherPlants) ? parsed.otherPlants.slice() : []);
-        const cautions = Array.isArray(parsed?.cautions) ? parsed.cautions : [];
+        const cautions = Array.isArray(parsed?.cautions) ? parsed.cautions.slice() : [];
 
         const validPlants = new Set(plantData.map(p => p.Nome.toLowerCase()));
-        let placements = projectPlacements.filter(s => s.plant && validPlants.has(s.plant.toLowerCase()));
+        const selectedSet = new Set(selectedPlants.map(p => p.Nome.toLowerCase()));
 
-        // Verifica adequação de cada planta ao local: se o modelo marcar 'suitable' como false,
-        // movemos a sugestão para 'alternatives' (se houver substituto) e adicionamos uma entrada em 'cautions'.
+        // Only accept placements for plants the user explicitly selected. Ignore any placement
+        // the model added that is not part of the user's selection to avoid spurious suggestions.
+        let placements = projectPlacements.filter(s => s.plant && selectedSet.has(String(s.plant).toLowerCase()) && validPlants.has(String(s.plant).toLowerCase()));
+
+        // Check suitability: if the model marks a selected plant as unsuitable, move it to alternatives
+        // (if a valid replacement is provided) and add a caution entry. Keep cautions limited to
+        // plants relevant to the current selection/plan to avoid unrelated site-wide lists.
         const finalPlacements = [];
         const movedAlternatives = [];
         for (const s of placements) {
           const suitableFlag = (s.suitable !== undefined) ? s.suitable : (s.suitability !== undefined ? s.suitability : true);
-          if (suitableFlag === false || suitableFlag === 'no' || suitableFlag === 'não') {
-            // tente obter sugestão de substituição fornecida pela IA
+          if (suitableFlag === false || suitableFlag === 'no' || String(suitableFlag).toLowerCase() === 'não' || String(suitableFlag).toLowerCase() === 'nao') {
             const repl = s.replacement || s.replacementPlant || s.replacement_name || s.suggested_alternative;
-            if (repl && typeof repl === 'string' && validPlants.has(repl.toLowerCase())) {
+            if (repl && typeof repl === 'string' && validPlants.has(repl.toLowerCase()) && !selectedSet.has(repl.toLowerCase())) {
               movedAlternatives.push({ plant: repl, reason: `Substitui ${s.plant} por não ser adequado para o local` });
             }
-            // adicione aviso de adequação nas cautelas
-            if (!parsed.cautions) parsed.cautions = [];
-            parsed.cautions.push({ plant: s.plant, toxicity: parsed.cautions?.toxicity || '', safety_tip: `Não adequado para o local; considere substituir ou reposicionar.` });
+            // add a caution only for this selected plant
+            cautions.push({ plant: s.plant, toxicity: '', safety_tip: `Não adequado para o local; considere substituir ou reposicionar.` });
             continue;
           }
           finalPlacements.push(s);
@@ -972,6 +982,56 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
 
         placements = finalPlacements;
         if (movedAlternatives.length > 0) alternatives = alternatives.concat(movedAlternatives);
+
+        // Post-process: ensure each placement is actually suitable for the selected space
+        // (e.g., block trees or gramados on 'Pequeno (Varanda)'). If not suitable, move to alternatives
+        // and add a targeted caution.
+        const spaceKeyNorm = String(userInfo.spaceSize || '').toLowerCase();
+        const spaceKeywordsMap = {
+          'varanda': ['apartamento', 'varanda', 'apartamento/varanda'],
+          'jardim': ['jardim'],
+          'quintal': ['quintal']
+        };
+
+        const getSpaceCategory = (key) => {
+          if (!key) return '';
+          const k = key.toLowerCase();
+          if (k.includes('varanda') || k.includes('pequeno')) return 'varanda';
+          if (k.includes('jardim') || k.includes('médio') || k.includes('medio')) return 'jardim';
+          if (k.includes('quintal') || k.includes('grande')) return 'quintal';
+          return '';
+        };
+
+        const selectedSpaceCat = getSpaceCategory(spaceKeyNorm);
+        const reMoved = [];
+        if (selectedSpaceCat) {
+          const allowedKeywords = spaceKeywordsMap[selectedSpaceCat] || [];
+          const newPlacements = [];
+          for (const s of placements) {
+            const plantName = String(s.plant || '').toLowerCase();
+            const plant = plantData.find(p => p.Nome.toLowerCase() === plantName);
+            let allowed = true;
+            if (plant && Array.isArray(plant.Espacos)) {
+              const esp = plant.Espacos.map(e => String(e).toLowerCase());
+              allowed = esp.some(e => allowedKeywords.some(k => e.includes(k)));
+            }
+            // if no explicit Espacos info, conservatively allow; otherwise enforce
+            if (!plant || !Array.isArray(plant.Espacos)) allowed = allowed !== false;
+
+            if (!allowed) {
+              // move to alternatives if not already
+              if (!alternatives.find(a => String(a.plant || '').toLowerCase() === plantName)) {
+                alternatives.push({ plant: plant ? plant.Nome : s.plant, reason: `Não compatível com o espaço selecionado (${userInfo.spaceSize}).` });
+              }
+              // add caution limited to this plant
+              cautions.push({ plant: plant ? plant.Nome : s.plant, toxicity: '', safety_tip: `Não adequado para ${userInfo.spaceSize}. Considere uma planta em vaso ou escolher outra espécie.` });
+              reMoved.push(s);
+            } else {
+              newPlacements.push(s);
+            }
+          }
+          placements = newPlacements;
+        }
 
         let html = '';
         html += `<h2 class="text-2xl font-bold text-emerald-900 mb-4">Seu Projeto Paisagístico</h2>`;
@@ -1007,7 +1067,7 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         }
 
         // SEÇÃO 2: PLANTAS ALTERNATIVAS SUGERIDAS
-        const validAlternatives = (Array.isArray(alternatives) ? alternatives : []).filter(a => a.plant && validPlants.has(a.plant.toLowerCase()));
+        const validAlternatives = (Array.isArray(alternatives) ? alternatives : []).filter(a => a.plant && validPlants.has(a.plant.toLowerCase()) && !selectedSet.has(a.plant.toLowerCase()));
         if (validAlternatives.length > 0) {
           html += `<h3 class="text-xl font-bold text-emerald-900 mt-8 mb-4 border-b-2 border-lime-500 pb-2">Outras plantas que podem se encaixar</h3>`;
           html += '<div class="grid gap-3">';
@@ -1021,10 +1081,13 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         }
 
         // SEÇÃO 3: ALERTAS DE TOXICIDADE (se aplicável)
-        if (cautions && cautions.length > 0) {
+        const placementsSet = new Set(placements.map(p => String(p.plant).toLowerCase()));
+        const alternativesSet = new Set(alternatives.map(a => String(a.plant).toLowerCase()));
+        const finalCautions = (Array.isArray(cautions) ? cautions : []).filter(c => c && c.plant && (selectedSet.has(String(c.plant).toLowerCase()) || placementsSet.has(String(c.plant).toLowerCase()) || alternativesSet.has(String(c.plant).toLowerCase())));
+        if (finalCautions && finalCautions.length > 0) {
           html += `<h3 class="text-lg font-bold text-rose-900 mt-8 mb-4 border-b-2 border-rose-500 pb-2">⚠️ Plantas Tóxicas - Dicas de Segurança</h3>`;
           html += '<div class="grid gap-3">';
-          cautions.forEach(c => {
+          finalCautions.forEach(c => {
             html += `<div class="p-4 rounded-lg bg-rose-50/70 border border-rose-300">
               <strong class="text-rose-900">${c.plant}</strong>
               <div class="text-sm text-rose-800 mt-2"><strong>Toxicidade:</strong> ${c.toxicity || ''}</div>
