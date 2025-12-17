@@ -878,7 +878,15 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
       "Médio (Jardim)": "jardim médio",
       "Grande (Quintal)": "quintal grande"
     };
-    const spaceDesc = spaceDescriptions[userInfo.spaceSize] || "espaço";
+      let spaceDesc = spaceDescriptions[userInfo.spaceSize] || "";
+      if (!spaceDesc && userInfo.spaceSize) {
+        const key = userInfo.spaceSize.toString().toLowerCase();
+        if (key.includes('varanda') || key.includes('pequeno')) spaceDesc = 'varanda';
+        else if (key.includes('quintal') || key.includes('grande')) spaceDesc = 'quintal grande';
+        else if (key.includes('jardim') || key.includes('médio') || key.includes('medio')) spaceDesc = 'jardim médio';
+      }
+      if (!spaceDesc) spaceDesc = 'espaço';
+      console.log('Gerando plano — spaceSize key:', userInfo.spaceSize, '-> prompt description:', spaceDesc);
     const promptFinal = `Crie um plano de jardinagem personalizado para um ${spaceDesc}.`;
 
     try {
@@ -936,11 +944,34 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
       if (parsed && typeof parsed === 'object') {
         const projectPlacements = Array.isArray(parsed?.project?.placements) ? parsed.project.placements : (Array.isArray(parsed.suggestions) ? parsed.suggestions : []);
         const projectOverview = parsed?.project?.overview || parsed.overview || '';
-        const alternatives = Array.isArray(parsed?.alternatives) ? parsed.alternatives : (Array.isArray(parsed.otherPlants) ? parsed.otherPlants : []);
+        let alternatives = Array.isArray(parsed?.alternatives) ? parsed.alternatives.slice() : (Array.isArray(parsed.otherPlants) ? parsed.otherPlants.slice() : []);
         const cautions = Array.isArray(parsed?.cautions) ? parsed.cautions : [];
 
         const validPlants = new Set(plantData.map(p => p.Nome.toLowerCase()));
         let placements = projectPlacements.filter(s => s.plant && validPlants.has(s.plant.toLowerCase()));
+
+        // Verifica adequação de cada planta ao local: se o modelo marcar 'suitable' como false,
+        // movemos a sugestão para 'alternatives' (se houver substituto) e adicionamos uma entrada em 'cautions'.
+        const finalPlacements = [];
+        const movedAlternatives = [];
+        for (const s of placements) {
+          const suitableFlag = (s.suitable !== undefined) ? s.suitable : (s.suitability !== undefined ? s.suitability : true);
+          if (suitableFlag === false || suitableFlag === 'no' || suitableFlag === 'não') {
+            // tente obter sugestão de substituição fornecida pela IA
+            const repl = s.replacement || s.replacementPlant || s.replacement_name || s.suggested_alternative;
+            if (repl && typeof repl === 'string' && validPlants.has(repl.toLowerCase())) {
+              movedAlternatives.push({ plant: repl, reason: `Substitui ${s.plant} por não ser adequado para o local` });
+            }
+            // adicione aviso de adequação nas cautelas
+            if (!parsed.cautions) parsed.cautions = [];
+            parsed.cautions.push({ plant: s.plant, toxicity: parsed.cautions?.toxicity || '', safety_tip: `Não adequado para o local; considere substituir ou reposicionar.` });
+            continue;
+          }
+          finalPlacements.push(s);
+        }
+
+        placements = finalPlacements;
+        if (movedAlternatives.length > 0) alternatives = alternatives.concat(movedAlternatives);
 
         let html = '';
         html += `<h2 class="text-2xl font-bold text-emerald-900 mb-4">Seu Projeto Paisagístico</h2>`;
