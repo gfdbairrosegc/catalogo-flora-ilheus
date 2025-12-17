@@ -773,8 +773,8 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
     const promptFinal = "Crie um plano de jardinagem simples para uma varanda com muito sol.";
 
     try {
-      const apiKey = import.meta.env.VITE_API_KEY;
-      if (!apiKey) throw new Error("Chave de API ausente");
+      const apiKey = import.meta.env.VITE_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API;
+      if (!apiKey) throw new Error("Chave de API ausente. Verifique VITE_API_KEY ou VITE_GEMINI_API_KEY no .env");
 
       // --- CONFIGURAÇÃO DO MODELO ---
       // Se quiser testar a 2.5, troque 'gemini-1.5-flash' por 'gemini-2.5-flash' abaixo.
@@ -800,9 +800,9 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
       );
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error("Erro da API:", response.status, errorData);
-        throw new Error(`Erro API: ${response.status}`);
+        const errText = await response.text().catch(() => null);
+        console.error("Erro da API:", response.status, errText || response.statusText);
+        throw new Error(`Erro API: ${response.status} - ${errText || response.statusText}`);
       }
 
       const data = await response.json();
