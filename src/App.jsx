@@ -859,12 +859,11 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
       const selectedNames = selectedPlants.map(p => p.Nome).join(', ');
       const userHasPets = userInfo.hasPets ? true : false;
       const userHasChildren = userInfo.hasChildren ? true : false;
+      const spaceSize = userInfo.spaceSize;
 
-      const jsonInstruction = `Você é um assistente que SÓ deve usar plantas da lista fornecida. Disponíveis: ${availableNames}. Selecionadas para este projeto: ${selectedNames}. ` +
-        `Informações do usuário: temPets=${userHasPets}, temCrianças=${userHasChildren}. ` +
-        `Se temPets ou temCrianças for true, NÃO sugira plantas marcadas como "Tóxica" no catálogo; se o modelo sugerir plantas tóxicas, coloque-as em um campo separado "invalidSuggestions" e NÃO as inclua em "suggestions". ` +
-        `Gere UM único objeto JSON com a estrutura: { "overview": "texto curto", "suggestions": [{ "plant": "Nome da planta (usar somente nomes da lista)", "location": "onde plantar (ex: borda, vaso, canto ensolarado)", "reason": "motivo" }], "invalidSuggestions": [{"plant":"Nome","reason":"porque é tóxica"}], "notes": "observações" }. ` +
-        `Retorne apenas o JSON, sem texto adicional. Se não houver sugestões válidas, retorne suggestions: [].`;
+      const jsonInstruction = `Você é um assistente de paisagismo. Use APENAS plantas da lista fornecida. Disponíveis: ${availableNames}. Selecionadas: ${selectedNames}. ` +
+        `Informações do usuário: espaço=${spaceSize}, temPets=${userHasPets}, temCrianças=${userHasChildren}. ` +
+        `ESTRUTURA DO JSON: { "project": { "overview": "texto curto", "placements": [{ "plant": "Nome", "location": "onde", "reason": "motivo", "watering": "frequência (ex: 2x por semana)", "fertilizing": "plano (ex: mensal com NPK 10-10-10)" }] }, "cautions": [{ "plant": "Nome (se tóxica)", "toxicity": "breve descrição", "safety_tip": "como usar com segurança (ex: colocar num local alto, longe de pets)" }], "alternatives": [{ "plant": "Nome", "reason": "por quê" }], "notes": "observações" }. Para cada planta SELECIONADA, inclua um plano específico de rega e adubagem baseado em suas necessidades. Se temPets ou temCrianças for true, NÃO coloque plantas tóxicas em 'placements'; coloque em 'cautions' com uma dica de segurança. Retorne apenas JSON, sem texto adicional.`;
 
       const prompt = `${promptFinal}\n\n${jsonInstruction}`;
 
@@ -901,81 +900,76 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
 
       // Se conseguimos um JSON válido, construa HTML estruturado (projeto primeiro, depois alternativas)
       if (parsed && typeof parsed === 'object') {
-        // Tolerância: aceite tanto a nova estrutura 'project.placements' quanto legacy 'suggestions'
         const projectPlacements = Array.isArray(parsed?.project?.placements) ? parsed.project.placements : (Array.isArray(parsed.suggestions) ? parsed.suggestions : []);
         const projectOverview = parsed?.project?.overview || parsed.overview || '';
         const alternatives = Array.isArray(parsed?.alternatives) ? parsed.alternatives : (Array.isArray(parsed.otherPlants) ? parsed.otherPlants : []);
+        const cautions = Array.isArray(parsed?.cautions) ? parsed.cautions : [];
 
-        // Filtra apenas plantas que existem no catálogo
         const validPlants = new Set(plantData.map(p => p.Nome.toLowerCase()));
-
         let placements = projectPlacements.filter(s => s.plant && validPlants.has(s.plant.toLowerCase()));
 
-        // Se usuário tem pets/crianças, remova plantas com tag "Tóxica"
-        const removedForToxicity = [];
-        if (userHasPets || userHasChildren) {
-          placements = placements.filter(s => {
-            const p = plantData.find(pl => pl.Nome.toLowerCase() === s.plant.toLowerCase());
-            if (!p) return false;
-            const isToxic = (p.Tags || '').toString().toLowerCase().includes('tóxica') || (p.Tags || '').toString().toLowerCase().includes('toxica');
-            if (isToxic) {
-              removedForToxicity.push({ plant: p.Nome, reason: 'Marcada como Tóxica no catálogo' });
-              return false;
-            }
-            return true;
-          });
-        }
-
         let html = '';
-        html += `<div class="ai-overview">${markdownToHtml(projectOverview)}</div>`;
+        html += `<h2 class="text-2xl font-bold text-emerald-900 mb-4">Seu Projeto Paisagístico</h2>`;
+        html += `<div class="ai-overview mb-6 p-4 bg-emerald-50/50 rounded-lg">${markdownToHtml(projectOverview)}</div>`;
 
+        // SEÇÃO 1: PLANTAS ESCOLHIDAS COM REGA/ADUBAGEM
+        html += `<h3 class="text-xl font-bold text-emerald-900 mt-8 mb-4 border-b-2 border-emerald-500 pb-2">Plantas Escolhidas para o Projeto</h3>`;
         if (placements.length === 0) {
-          html += `<div class="p-4 mt-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800">A IA não sugeriu plantas válidas do catálogo para o projeto. Tente ajustar as plantas selecionadas.</div>`;
+          html += `<div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800">Nenhuma planta válida foi posicionada. Tente ajustar sua seleção.</div>`;
         } else {
-          html += '<div class="grid gap-4 mt-6">';
+          html += '<div class="grid gap-4">';
           placements.forEach((s) => {
             const plantName = s.plant;
             const plant = plantData.find(p => p.Nome.toLowerCase() === plantName.toLowerCase());
             const img = plant ? getPlantImage(plant.Nome) : '';
             const location = s.location || s.location?.toString() || '';
             const reason = s.reason || '';
+            const watering = s.watering || '';
+            const fertilizing = s.fertilizing || '';
 
-            html += `
-              <div class="flex items-center gap-4 p-4 rounded-xl border bg-white/80 shadow-sm">
-                <img src="${img}" alt="${plantName}" class="w-20 h-20 object-cover rounded-lg" onerror="this.src='https://placehold.co/120x90?text=Sem+foto'" />
-                <div class="flex-1">
-                  <h4 class="font-black text-emerald-900">${plantName}</h4>
-                  <div class="text-sm text-emerald-700 mt-1"><strong>Posicionamento sugerido:</strong> ${location}</div>
-                  <div class="text-sm text-emerald-700 mt-1"><strong>Motivo:</strong> ${reason}</div>
-                </div>
-              </div>`;
+            html += `<div class="flex gap-4 p-4 rounded-xl border-2 border-emerald-200 bg-emerald-50/30 shadow-sm">
+              <img src="${img}" alt="${plantName}" class="w-24 h-24 object-cover rounded-lg flex-shrink-0" onerror="this.src='https://placehold.co/120x90?text=Sem+foto'" />
+              <div class="flex-1">
+                <h4 class="font-black text-lg text-emerald-900">${plantName}</h4>
+                <div class="text-sm text-emerald-700 mt-2"><strong>📍 Posicionamento:</strong> ${location}</div>
+                <div class="text-sm text-emerald-700 mt-1"><strong>💡 Motivo:</strong> ${reason}</div>
+                ${watering ? `<div class="text-sm text-emerald-700 mt-2"><strong>💧 Rega:</strong> ${watering}</div>` : ''}
+                ${fertilizing ? `<div class="text-sm text-emerald-700 mt-1"><strong>🌱 Adubagem:</strong> ${fertilizing}</div>` : ''}
+              </div>
+            </div>`;
           });
           html += '</div>';
         }
 
-        if (removedForToxicity.length > 0) {
-          html += `<div class="mt-4 p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800">Removidas por segurança (pets/crianças): <ul>${removedForToxicity.map(r => `<li>${r.plant} — ${r.reason}</li>`).join('')}</ul></div>`;
-        }
-
-        // Render alternatives (outras plantas que podem complementar o projeto)
+        // SEÇÃO 2: PLANTAS ALTERNATIVAS SUGERIDAS
         const validAlternatives = (Array.isArray(alternatives) ? alternatives : []).filter(a => a.plant && validPlants.has(a.plant.toLowerCase()));
         if (validAlternatives.length > 0) {
-          html += '<h3 class="text-xl font-bold mt-8">Outras plantas que podem se encaixar</h3>';
-          html += '<div class="grid gap-3 mt-3">';
+          html += `<h3 class="text-xl font-bold text-emerald-900 mt-8 mb-4 border-b-2 border-lime-500 pb-2">Outras plantas que podem se encaixar</h3>`;
+          html += '<div class="grid gap-3">';
           validAlternatives.forEach(a => {
             const plantName = a.plant;
             const p = plantData.find(pp => pp.Nome.toLowerCase() === plantName.toLowerCase());
             const img = p ? getPlantImage(p.Nome) : '';
-            html += `<div class="flex items-center gap-3 p-3 rounded-lg bg-white/80 border"><img src="${img}" class="w-14 h-14 object-cover rounded-md" onerror="this.src='https://placehold.co/80x60?text=Sem'"/><div><strong>${plantName}</strong><div class="text-sm text-emerald-700">${a.reason || ''}</div></div></div>`;
+            html += `<div class="flex items-center gap-3 p-3 rounded-lg bg-lime-50/50 border border-lime-200"><img src="${img}" class="w-14 h-14 object-cover rounded-md flex-shrink-0" onerror="this.src='https://placehold.co/80x60?text=Sem'"/><div><strong class="text-emerald-900">${plantName}</strong><div class="text-sm text-emerald-700">${a.reason || ''}</div></div></div>`;
           });
           html += '</div>';
         }
 
-        if (parsed.invalidSuggestions && parsed.invalidSuggestions.length > 0) {
-          html += `<div class="mt-4 p-4 rounded-lg bg-orange-50 border border-orange-200 text-orange-800">A IA listou sugestões inválidas: <ul>${parsed.invalidSuggestions.map(r => `<li>${r.plant} — ${r.reason || ''}</li>`).join('')}</ul></div>`;
+        // SEÇÃO 3: ALERTAS DE TOXICIDADE (se aplicável)
+        if (cautions && cautions.length > 0) {
+          html += `<h3 class="text-lg font-bold text-rose-900 mt-8 mb-4 border-b-2 border-rose-500 pb-2">⚠️ Plantas Tóxicas - Dicas de Segurança</h3>`;
+          html += '<div class="grid gap-3">';
+          cautions.forEach(c => {
+            html += `<div class="p-4 rounded-lg bg-rose-50/70 border border-rose-300">
+              <strong class="text-rose-900">${c.plant}</strong>
+              <div class="text-sm text-rose-800 mt-2"><strong>Toxicidade:</strong> ${c.toxicity || ''}</div>
+              <div class="text-sm text-emerald-700 mt-2 bg-white/60 p-2 rounded"><strong>✓ Como usar com segurança:</strong> ${c.safety_tip || 'Posicione em local seguro.'}</div>
+            </div>`;
+          });
+          html += '</div>';
         }
 
-        if (parsed.notes) html += `<div class="mt-6 text-sm text-emerald-700">${markdownToHtml(parsed.notes)}</div>`;
+        if (parsed.notes) html += `<h3 class="text-lg font-bold text-emerald-900 mt-8 mb-2">📝 Notas Finais</h3><div class="mt-2 text-sm text-emerald-700 bg-white/50 p-4 rounded-lg">${markdownToHtml(parsed.notes)}</div>`;
 
         // sanitize result if possible
         try {
