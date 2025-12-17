@@ -844,8 +844,14 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
     setLoading(true);
     setAiAdvice(null);
 
-    // 1. Monte seu prompt
-    const promptFinal = "Crie um plano de jardinagem simples para uma varanda com muito sol.";
+    // 1. Monte seu prompt com base no espaço selecionado
+    const spaceDescriptions = {
+      "Pequeno (Varanda)": "varanda",
+      "Médio (Jardim)": "jardim médio",
+      "Grande (Quintal)": "quintal grande"
+    };
+    const spaceDesc = spaceDescriptions[userInfo.spaceSize] || "espaço";
+    const promptFinal = `Crie um plano de jardinagem personalizado para um ${spaceDesc}.`;
 
     try {
       const apiKey = import.meta.env.VITE_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API;
