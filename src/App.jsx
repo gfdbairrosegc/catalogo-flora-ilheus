@@ -12,7 +12,8 @@ import {
   PawPrint, // Adicionado para corrigir o erro
   Baby,     // Adicionado para corrigir o erro
   Smile,    // Adicionado
-  Search    // Adicionado
+  Search,   // Adicionado
+  Sun       // Adicionado
 } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DE IMAGENS ---
