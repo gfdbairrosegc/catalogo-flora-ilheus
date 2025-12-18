@@ -722,6 +722,12 @@ const getPlantImage = (plantName) => {
   return `${basePath}images/${cleanName}.jpg`;
 };
 
+// Gera caminho para a logo
+const getLogoImage = () => {
+  const basePath = import.meta.env.BASE_URL || '/';
+  return `${basePath}images/logo.png`;
+};
+
 // Converte uma string simples em Markdown para HTML básico (headings, listas, bold/italic, links)
 // NOTA: o resultado NÃO é sanitizado — em produção, use DOMPurify.sanitize(html) antes de inserir no DOM.
 const markdownToHtml = (md) => {
@@ -1227,19 +1233,19 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
               `- ${p.name}: ${p.location || 'local'}, Luz: ${p.luz}, Rega: ${p.rega}`
             ).join('\n');
 
-            const improvedPrompt = `Você é um paisagista especializado. Com base no projeto de paisagismo a seguir, gere:
-1. Um RESUMO EXECUTIVO (2-3 frases) descrevendo a estratégia do projeto considerando APENAS as plantas que ficaram.
-2. SUGESTÕES DE POSICIONAMENTO considerando as necessidades de luz e rega de cada planta, incluindo quais plantas podem ficar próximas (complementares) e quais devem ficar afastadas.
-3. DICAS PRÁTICAS de manutenção específicas para este projeto.
+            const improvedPrompt = `Voce eh um paisagista especializado. Com base no projeto de paisagismo a seguir, gere:
+1. Um RESUMO EXECUTIVO (2-3 frases) descrevendo a estrategia do projeto considerando APENAS as plantas que ficaram.
+2. SUGESTOES DE POSICIONAMENTO considerando as necessidades de luz e rega de cada planta.
+3. DICAS PRATICAS de manutencao especificas para este projeto.
 
 Plantas selecionadas:
 ${placementsInfo}
 
-Espaço: ${userInfo.spaceSize}
-Usuário tem pets: ${userHasPets}
-Usuário tem crianças: ${userHasChildren}
+Espaco: ${userInfo.spaceSize}
+Usuario tem pets: ${userHasPets}
+Usuario tem criancas: ${userHasChildren}
 
-Gere um texto profissional, prático e específico para estas plantas.`;
+Gere um texto profissional, pratico e especifico para estas plantas.`;
 
             const improvedResponse = await fetch(finalUrl, {
               method: 'POST',
@@ -1417,12 +1423,13 @@ Gere um texto profissional, prático e específico para estas plantas.`;
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-300/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-300/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
 
-        <div className="flex flex-col items-center justify-center gap-6 mb-8 border-b border-white/30 pb-6 relative z-10">
-          <img src="/catalogo-flora-ilheus/images/logo.png" alt="Logo" className="w-20 h-20 rounded-full shadow-xl shadow-emerald-500/30 object-cover" />
-          <div className="text-center">
+        <div className="flex items-center gap-4 mb-8 border-b border-white/30 pb-6 relative z-10">
+          <img src={getLogoImage()} alt="Logo Flora Ilheus" className="w-16 h-16 rounded-full shadow-xl shadow-emerald-500/30 object-cover flex-shrink-0 border-2 border-emerald-600" />
+          <div>
             <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-900 to-teal-800 tracking-tight">Seu Projeto</h2>
             <p className="text-emerald-700 font-bold">Paisagismo Residencial Personalizado</p>
           </div>
+        </div>
           
           {selectedPlants.length > 0 && !loading && !aiAdvice && (
              <button onClick={generateAIPlan} className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg transition-all hover:shadow-emerald-500/40 hover:-translate-y-1">
@@ -1430,7 +1437,6 @@ Gere um texto profissional, prático e específico para estas plantas.`;
                Gerar Consultoria
              </button>
           )}
-        </div>
 
         {/* --- FORMULÁRIO DE ANÁLISE DE ESPAÇO --- */}
         {selectedPlants.length > 0 && !aiAdvice && (
@@ -1527,7 +1533,7 @@ Gere um texto profissional, prático e específico para estas plantas.`;
             </div>
             {/* WARNING: aiAdvice is rendered as HTML. Sanitize before rendering to avoid XSS. */}
             {/* Consider installing DOMPurify and using: DOMPurify.sanitize(aiAdvice) */}
-            <div className="prose prose-emerald prose-lg max-w-none prose-headings:font-black prose-headings:text-emerald-900 prose-p:text-emerald-800 prose-p:font-medium prose-strong:text-emerald-950" dangerouslySetInnerHTML={{ __html: aiAdvice }} />
+            <div className="prose prose-emerald prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: aiAdvice }} />
           </div>
         )}
       </div>
@@ -1559,7 +1565,7 @@ export default function PaisagismoIlheus() {
       const matchesFrutifera = filters.frutifera ? plant.Frutifera === true : true;
         
       return matchesSearch && matchesLuz && matchesEspaco && matchesDificuldade && matchesOrigem && matchesGrupo && matchesFrutifera;
-    });
+    }).sort((a, b) => a.Nome.localeCompare(b.Nome));
   }, [search, filters]);
 
   const togglePlant = (plant) => {
@@ -1595,9 +1601,7 @@ export default function PaisagismoIlheus() {
         <aside className="w-full md:w-80 shrink-0 bg-white/60 backdrop-blur-2xl border-r border-white/40 h-full overflow-y-auto custom-scrollbar flex flex-col shadow-2xl relative z-20">
             <div className="p-6 pb-2">
                 <div className="flex items-center gap-3 mb-6">
-                    <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl text-white shadow-lg shadow-emerald-500/30">
-                        <Home size={24} strokeWidth={2.5} />
-                    </div>
+                    <img src={getLogoImage()} alt="Flora Ilheus" className="w-14 h-14 rounded-full shadow-lg shadow-emerald-500/30 object-cover flex-shrink-0 border-2 border-emerald-600" />
                     <div>
                         <h1 className="text-2xl font-black text-emerald-900 tracking-tight leading-none">Flora Ilhéus</h1>
                         <p className="text-xs text-emerald-700 font-bold uppercase tracking-wider mt-1">Paisagismo Urbano</p>
