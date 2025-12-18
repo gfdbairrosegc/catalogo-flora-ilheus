@@ -1423,20 +1423,22 @@ Gere um texto profissional, pratico e especifico para estas plantas.`;
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-300/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-300/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
 
-        <div className="flex items-center gap-4 mb-8 border-b border-white/30 pb-6 relative z-10">
-          <img src={getLogoImage()} alt="Logo Flora Ilheus" className="w-16 h-16 rounded-full shadow-xl shadow-emerald-500/30 object-cover flex-shrink-0 border-2 border-emerald-600" />
-          <div>
-            <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-900 to-teal-800 tracking-tight">Seu Projeto</h2>
-            <p className="text-emerald-700 font-bold">Paisagismo Residencial Personalizado</p>
+        <div className="flex items-center justify-between gap-4 mb-8 border-b border-white/30 pb-6 relative z-10">
+          <div className="flex items-center gap-4">
+            <img src={getLogoImage()} alt="Logo Flora Ilheus" className="w-16 h-16 rounded-full shadow-xl shadow-emerald-500/30 object-cover flex-shrink-0 border-2 border-emerald-600" />
+            <div>
+              <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-900 to-teal-800 tracking-tight">Seu Projeto</h2>
+              <p className="text-emerald-700 font-bold">Paisagismo Residencial Personalizado</p>
+            </div>
           </div>
-        </div>
           
           {selectedPlants.length > 0 && !loading && !aiAdvice && (
-             <button onClick={generateAIPlan} className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg transition-all hover:shadow-emerald-500/40 hover:-translate-y-1">
+             <button onClick={generateAIPlan} className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg transition-all hover:shadow-emerald-500/40 hover:-translate-y-1 flex-shrink-0">
                <Sparkles size={20} className="text-yellow-200" />
                Gerar Consultoria
              </button>
           )}
+        </div>
 
         {/* --- FORMULÁRIO DE ANÁLISE DE ESPAÇO --- */}
         {selectedPlants.length > 0 && !aiAdvice && (
