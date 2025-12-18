@@ -1119,14 +1119,12 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         }
 
         // SEÇÃO 3: ALERTAS DE TOXICIDADE (se aplicável)
-        // Exclude cautions for plants that are incompatible with space (they're already in reMoved)
+        // Include cautions for: placements, alternatives, selected plants, AND plants removed due to space incompatibility
         const alternativesSet = new Set(validAlternatives.map(a => String(a.plant).toLowerCase()));
         const finalCautions = (Array.isArray(cautions) ? cautions : []).filter(c => {
           const cPlantLower = String(c.plant).toLowerCase();
-          // Exclude if it's a plant that was removed due to space incompatibility
-          if (removedSet.has(cPlantLower)) return false;
-          // Include only if relevant to placements, alternatives, or selected plants
-          return selectedSet.has(cPlantLower) || placementsSet.has(cPlantLower) || alternativesSet.has(cPlantLower);
+          // Include if relevant to placements, alternatives, selected plants, or space-incompatible plants (removedSet)
+          return selectedSet.has(cPlantLower) || placementsSet.has(cPlantLower) || alternativesSet.has(cPlantLower) || removedSet.has(cPlantLower);
         });
         if (finalCautions && finalCautions.length > 0) {
           html += `<h3 class="text-lg font-bold text-rose-900 mt-8 mb-4 border-b-2 border-rose-500 pb-2">⚠️ Plantas Tóxicas - Dicas de Segurança</h3>`;
