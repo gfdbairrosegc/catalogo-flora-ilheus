@@ -982,7 +982,7 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
 
       const jsonInstruction = `Você é um assistente de paisagismo. Use APENAS plantas da lista fornecida. Disponíveis: ${availableNames}. Selecionadas: ${selectedNames}. ` +
         `Informações do usuário: espaço=${spaceSize}, temPets=${userHasPets}, temCrianças=${userHasChildren}. ${extraSpaceConstraints} ` +
-        `ESTRUTURA DO JSON: { "project": { "overview": "texto curto", "placements": [{ "plant": "Nome", "location": "onde", "reason": "motivo", "watering": "frequência (ex: 2x por semana)", "fertilizing": "plano (ex: mensal com NPK 10-10-10)" }] }, "cautions": [{ "plant": "Nome (se tóxica)", "toxicity": "breve descrição", "safety_tip": "como usar com segurança (ex: colocar num local alto, longe de pets)" }], "alternatives": [{ "plant": "Nome", "reason": "por quê" }], "notes": "observações" }. Para cada planta SELECIONADA, inclua um plano específico de rega e adubagem baseado em suas necessidades. Se temPets ou temCrianças for true, coloque plantas tóxicas também em 'cautions' e adicione uma dica de segurança. Se a planta for incompatível com o local, não inclua em 'cautions' Retorne apenas JSON, sem texto adicional.`;
+        `ESTRUTURA DO JSON: { "project": { "overview": "texto curto", "placements": [{ "plant": "Nome", "location": "onde", "reason": "motivo", "watering": "frequência (ex: 2x por semana)", "fertilizing": "plano (ex: mensal com NPK 10-10-10)" }] }, "cautions": [{ "plant": "Nome (se tóxica)", "toxicity": "breve descrição", "safety_tip": "como usar com segurança (ex: colocar num local alto, longe de pets)" }], "alternatives": [{ "plant": "Nome", "reason": "por quê" }], "notes": "observações" }. Para cada planta SELECIONADA, inclua um plano específico de rega e adubagem baseado em suas necessidades. Se temPets ou temCrianças for true, coloque plantas tóxicas em 'cautions' e adicione uma dica de segurança. Se a planta for incompatível com o local, não inclua em 'cautions' Retorne apenas JSON, sem texto adicional.`;
 
       const prompt = `${promptFinal}\n\n${jsonInstruction}`;
 
@@ -1093,9 +1093,6 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
               if (!alternatives.find(a => String(a.plant || '').toLowerCase() === plantName)) {
                 alternatives.push({ plant: plant ? plant.Nome : s.plant, reason: `Não compatível com o espaço selecionado (${userInfo.spaceSize}).` });
               }
-              // add caution limited to this plant
-              cautions.push({ plant: plant ? plant.Nome : s.plant, toxicity: '', safety_tip: `Não adequado para ${userInfo.spaceSize}. Considere uma planta em vaso ou escolher outra espécie.` });
-              reMoved.push(s);
             } else {
               newPlacements.push(s);
             }
@@ -1107,14 +1104,7 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         html += `<h2 class="text-2xl font-bold text-emerald-900 mb-4">Seu Projeto Paisagístico</h2>`;
         html += `<div class="ai-overview mb-6 p-4 bg-emerald-50/50 rounded-lg">${markdownToHtml(projectOverview)}</div>`;
         
-        {/* --- ADICIONE ESTE BOTÃO AQUI --- */}
-        <button 
-            onClick={() => setSelectedPlants([])} 
-            className="flex items-center gap-1 text-[10px] font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-100 px-2 py-1 rounded-lg transition-all uppercase tracking-wider"
-        >
-            <Trash2 size={10} /> Limpar Tudo
-        </button>
-        {/* ------------------------------- */}
+        
         
         // SEÇÃO 0: INCOMPATIBILIDADE COM TAMANHO DO ESPAÇO (mostrar primeiro)
         const placementsSet = new Set(placements.map(p => String(p.plant).toLowerCase()));
@@ -1287,7 +1277,7 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
                             value={userInfo.spaceSize}
                             onChange={(e) => setUserInfo({...userInfo, spaceSize: e.target.value})}
                             className="px-4 py-2 rounded-xl border-emerald-200 bg-white text-emerald-900 focus:ring-2 focus:ring-emerald-400 focus:outline-none"
-                        >
+                        >   
                             <option value="Pequeno (Varanda)">Pequeno (Varanda)</option>
                             <option value="Médio (Jardim)">Médio (Jardim)</option>
                             <option value="Grande (Quintal)">Grande (Quintal)</option>
@@ -1494,21 +1484,43 @@ export default function PaisagismoIlheus() {
 
     {/* 2. MENU DE ABAS (STICKY) */}
     <div className="sticky top-0 z-30 p-4 flex justify-center pointer-events-none">
-        <div className="flex gap-2 bg-white/95 p-1.5 rounded-2xl shadow-xl border border-white/50 pointer-events-auto">
+        {/* Adicionei 'items-center' aqui para alinhar verticalmente */}
+        <div className="flex items-center gap-2 bg-white/95 p-1.5 rounded-2xl shadow-xl border border-white/50 pointer-events-auto">
+            
             <button 
                 onClick={() => setView('catalog')} 
                 className={`px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider transition-all shadow-sm ${view === 'catalog' ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30' : 'bg-transparent text-emerald-800 hover:bg-emerald-50'}`}
             >
                 Catálogo
             </button>
+            
             <button 
                 onClick={() => setView('design')} 
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider transition-all shadow-sm ${view === 'design' ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30' : 'bg-transparent text-emerald-800 hover:bg-emerald-50'}`}
             >
                 Meu Jardim
-                {selectedPlants.length > 0 && <span className="bg-lime-400 text-emerald-900 text-[10px] px-2 py-0.5 rounded-full animate-pulse">{selectedPlants.length}</span>}
-                
+                {selectedPlants.length > 0 && (
+                    <span className="bg-lime-400 text-emerald-900 text-[10px] px-2 py-0.5 rounded-full animate-pulse shadow-sm">
+                        {selectedPlants.length}
+                    </span>
+                )}
             </button>
+
+            {/* --- BOTÃO LIMPAR (Só aparece se tiver plantas) --- */}
+            {selectedPlants.length > 0 && (
+                <>
+                    {/* Pequena divisória visual */}
+                    <div className="w-px h-6 bg-slate-200 mx-1"></div>
+                    
+                    <button 
+                        onClick={() => setSelectedPlants([])} 
+                        className="flex items-center gap-1.5 text-[10px] font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-100 px-3 py-2 rounded-lg transition-all uppercase tracking-wider whitespace-nowrap"
+                        title="Remover todas as plantas"
+                    >
+                        <Trash2 size={12} /> Limpar
+                    </button>
+                </>
+            )}
         </div>
     </div>
 
