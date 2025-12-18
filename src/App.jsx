@@ -1135,10 +1135,14 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
 
         const getSpaceCategory = (key) => {
           if (!key) return '';
-          const k = key.toLowerCase();
-          if (k.includes('varanda') || k.includes('pequeno')) return 'varanda';
-          if (k.includes('jardim') || k.includes('médio') || k.includes('medio')) return 'jardim';
-          if (k.includes('quintal') || k.includes('grande')) return 'quintal';
+          // Extract just the main space type, ignoring the size in parentheses
+          // "Jardim (Médio)" -> "Jardim"
+          // "Pequeno (Varanda)" -> "Varanda"
+          // "Quintal (Grande)" -> "Quintal"
+          const mainType = key.split('(')[0].trim().toLowerCase();
+          if (mainType.includes('varanda') || mainType.includes('pequeno')) return 'varanda';
+          if (mainType.includes('jardim')) return 'jardim';
+          if (mainType.includes('quintal') || mainType.includes('grande')) return 'quintal';
           return '';
         };
 
@@ -1203,49 +1207,76 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
           return pd ? pd.Nome : n;
         });
 
-        // Build project overview: if there are removed plants, use a generic template
-        // instead of trying to surgically remove plant names from the AI-generated text
-        // (which results in broken sentences like "O, embora...")
+        // Build project overview: ALWAYS generate specific text based on compatible plants in placements
+        // Regardless of whether some plants were removed, we focus on the ones that made it
         let projectOverviewFinal = projectOverview || '';
         let finalNotes = parsed.notes || '';
         
-        if (removedNames.length > 0) {
-          // If many plants were removed, replace the entire overview with a neutral template
-          // to avoid broken grammar from removing specific plant names
-          projectOverviewFinal = `Projeto de paisagismo adaptado para ${userInfo.spaceSize}. Priorizamos plantas que se adequam ao espaço disponível, com ênfase em fácil manejo e manutenção. O design utiliza vasos e soluções que maximizam o uso do espaço sem comprometer a estética.`;
-          finalNotes = `Recomendações gerais: mantenha as plantas em local com luminosidade adequada, regue conforme a necessidade de cada espécie e realize podas regulares para manter o formato e estimular o crescimento. Adapte o espaçamento dos vasos conforme a disponibilidade do espaço e o crescimento das plantas.`;
-        } else if (placements.length > 0) {
-          // Se nenhuma planta foi removida, gera um resumo melhorado considerando o projeto real
+        // Generate improved harmonization and notes ALWAYS if we have compatible plants
+        if (placements.length > 0) {
+          // Gera um resumo melhorado considerando APENAS as plantas compatíveis
           try {
             const placementsList = placements.map(p => {
               const plantName = String(p.plant || '').toLowerCase();
               const plantData_item = plantData.find(pd => pd.Nome.toLowerCase() === plantName);
               return {
                 name: p.plant,
-                location: p.location || '',
+                location: p.location || 'local não especificado',
+                reason: p.reason || 'compatível com o espaço',
                 luz: plantData_item?.Luz || 'Não especificado',
                 rega: p.watering || 'Conforme necessário',
-                altura: plantData_item?.Altura || 'Variável'
+                altura: plantData_item?.Altura || 'Variável',
+                adubagem: p.fertilizing || 'Mensal',
+                dificuldade: plantData_item?.Dificuldade || 'Média',
+                tags: plantData_item?.Tags || [],
+                origem: plantData_item?.Origem || '',
+                grupo: plantData_item?.Grupo || ''
               };
             });
 
-            const placementsInfo = placementsList.map(p => 
-              `- ${p.name}: ${p.location || 'local'}, Luz: ${p.luz}, Rega: ${p.rega}`
-            ).join('\n');
+            const placementsInfo = placementsList.map(p => {
+              const tagsStr = Array.isArray(p.tags) ? p.tags.join(', ') : '';
+              return `${p.name}:
+  - Posicionamento: ${p.location}
+  - Razão: ${p.reason}
+  - Luz: ${p.luz}
+  - Rega: ${p.rega}
+  - Altura: ${p.altura}
+  - Adubagem: ${p.adubagem}
+  - Dificuldade: ${p.dificuldade}
+  - Características: ${tagsStr || 'Sem tags'}
+  - Origem: ${p.origem}
+  - Tipo: ${p.grupo}`;
+            }).join('\n\n');
 
-            const improvedPrompt = `Voce eh um paisagista especializado. Com base no projeto de paisagismo a seguir, gere:
-1. Um RESUMO EXECUTIVO (2-3 frases) descrevendo a estrategia do projeto considerando APENAS as plantas que ficaram.
-2. SUGESTOES DE POSICIONAMENTO considerando as necessidades de luz e rega de cada planta.
-3. DICAS PRATICAS de manutencao especificas para este projeto.
+            console.log('DEBUG placements.length:', placements.length);
+            console.log('DEBUG removedNames.length:', removedNames.length);
+            console.log('DEBUG placementsInfo enviado para IA:\n', placementsInfo);
 
-Plantas selecionadas:
+            const improvedPrompt = `Você é um paisagista especializado com experiência em paisagismo residencial. Com base no projeto de paisagismo a seguir, descreva como harmonizar estas plantas compatíveis e selecionadas. Gere um JSON com estas estruturas ESPECÍFICAS e PERSONALIZADAS:
+
+{
+  "harmonization": "Descreva como posicionar e combinar ESTAS PLANTAS ESPECÍFICAS no espaço. REGRAS OBRIGATÓRIAS:
+    1) Mencione CADA PLANTA pelo nome
+    2) Para cada planta, explique sua necessidade de luz (sombra/meia-sombra/luz direta) e relacione com outras plantas (ex: 'Calathea precisa de sombra - posicione embaixo da Palmeira Areca que fará sombra')
+    3) Para cada planta, explique frequência de rega e se há diferenças em relação a outras (ex: 'Planta X requer rega semanal, Planta Y quinzenal - mantenha distância ou use sistemas diferentes')
+    4) Mencione como as alturas se complementam (qual planta fica na frente/atrás)
+    5) Mencione texturas/cores das folhas e contraste visual
+    6) Dê distâncias PRÁTICAS entre plantas quando necessário
+    7) Adapte para 1, 2, ou múltiplas plantas
+    8) Máximo 10 linhas, detalhado e prático.",
+  "final_notes": "Resumo PRÁTICO e ESPECÍFICO de manutenção para ESTAS PLANTAS. REGRAS: 1) Agrupe por necessidades: 'Plantas com rega semanal: X, Y' e 'Plantas com rega quinzenal: Z'. 2) Mencione cuidados ESPECÍFICOS de cada planta ou grupo. 3) Se há pets/crianças, mencione riscos REAIS de toxicidade de CADA planta. 4) Máximo 4 linhas."
+}
+
+PLANTAS COMPATÍVEIS SELECIONADAS PARA O PROJETO:
 ${placementsInfo}
 
-Espaco: ${userInfo.spaceSize}
-Usuario tem pets: ${userHasPets}
-Usuario tem criancas: ${userHasChildren}
+CONTEXTO DO PROJETO:
+- Tamanho do espaço: ${userInfo.spaceSize}
+- Possui animais de estimação: ${userHasPets}
+- Possui crianças: ${userHasChildren}
 
-Gere um texto profissional, pratico e especifico para estas plantas.`;
+CRÍTICO: Não use frases genéricas. Toda recomendação DEVE mencionar plantas específicas e razões práticas. Retorne APENAS o JSON válido, sem markdown.`;
 
             const improvedResponse = await fetch(finalUrl, {
               method: 'POST',
@@ -1256,39 +1287,46 @@ Gere um texto profissional, pratico e especifico para estas plantas.`;
             if (improvedResponse.ok) {
               const improvedData = await improvedResponse.json();
               const improvedText = improvedData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+              console.log('DEBUG resposta IA raw:', improvedText?.substring(0, 300));
               if (improvedText && improvedText.trim()) {
-                // Split improved response into overview and notes
-                const sections = improvedText.split(/\n\d+\.\s+/);
-                if (sections.length > 0) {
-                  projectOverviewFinal = sections[0].trim();
-                  if (sections.length > 1) {
-                    finalNotes = sections.slice(1).map(s => s.trim()).join('\n\n');
+                try {
+                  let cleanedText = improvedText.trim();
+                  if (cleanedText.startsWith('```')) {
+                    cleanedText = cleanedText.replace(/^```(json)?\n?/, '').replace(/\n?```$/, '');
                   }
+                  const improvedJson = JSON.parse(cleanedText);
+                  console.log('DEBUG JSON parsed:', improvedJson);
+                  if (improvedJson.harmonization && improvedJson.harmonization.trim()) {
+                    projectOverviewFinal = improvedJson.harmonization;
+                    console.log('✓ harmonization atualizada');
+                  }
+                  if (improvedJson.final_notes && improvedJson.final_notes.trim()) {
+                    finalNotes = improvedJson.final_notes;
+                    console.log('✓ final_notes atualizada');
+                  }
+                } catch (e) {
+                  console.warn('❌ Erro ao parsear JSON:', e.message);
+                  console.warn('Texto tentado:', improvedText?.substring(0, 300));
                 }
               }
+            } else {
+              console.warn('❌ Erro na resposta da IA:', improvedResponse.status);
             }
           } catch (improvementError) {
-            console.warn('Erro ao gerar resumo melhorado:', improvementError);
-            // Keep the original text if improvement fails
+            console.warn('❌ Erro ao gerar resumo melhorado:', improvementError.message);
           }
+        } else if (placements.length === 0 && selectedPlants.length === 0) {
+          // Se nenhuma planta foi selecionada
+          projectOverviewFinal = `Selecione plantas para gerar um projeto paisagístico personalizado.`;
+          finalNotes = '';
+        } else {
+          // Se nenhuma planta passou na filtragem de compatibilidade
+          projectOverviewFinal = `Nenhuma das plantas selecionadas é compatível com o espaço "${userInfo.spaceSize}". Considere as alternativas sugeridas.`;
+          finalNotes = '';
         }
         
-        // Now inject the (possibly updated) overview into the HTML
+        // Now inject the (possibly updated) content into the HTML
         html += `<h2 class="text-2xl font-bold text-emerald-900 mb-4">Seu Projeto Paisagístico</h2>`;
-        html += `<div class="ai-overview mb-6 p-4 bg-emerald-50/50 rounded-lg">${markdownToHtml(projectOverviewFinal)}</div>`;
-
-        if (incompatibleWarnings.length > 0) {
-          html += `<div class="p-6 rounded-2xl bg-orange-50 border-2 border-orange-300 mb-6">
-            <h3 class="text-lg font-bold text-orange-900 mb-4 flex items-center gap-2">🚫 Plantas Incompatíveis com o Espaço</h3>
-            <div class="grid gap-3">`;
-          incompatibleWarnings.forEach(w => {
-            html += `<div class="p-4 rounded-lg bg-white border border-orange-200">
-              <strong class="text-orange-900">${w.plant}</strong>
-              <div class="text-sm text-orange-800 mt-1">${w.reason}</div>
-            </div>`;
-          });
-          html += `</div></div>`;
-        }
 
         // SEÇÃO 1: PLANTAS ESCOLHIDAS COM REGA/ADUBAGEM (que se adequam ao espaço)
         html += `<h3 class="text-xl font-bold text-emerald-900 mt-8 mb-4 border-b-2 border-emerald-500 pb-2">Plantas Escolhidas para o Projeto</h3>`;
@@ -1317,6 +1355,25 @@ Gere um texto profissional, pratico e especifico para estas plantas.`;
             </div>`;
           });
           html += '</div>';
+        }
+
+        // SEÇÃO 1.5: INCOMPATIBILIDADES COM O ESPAÇO
+        if (incompatibleWarnings.length > 0) {
+          html += `<h3 class="text-xl font-bold text-orange-900 mt-8 mb-4 border-b-2 border-orange-500 pb-2 flex items-center gap-2">🚫 Plantas Incompatíveis com o Espaço</h3>`;
+          html += '<div class="grid gap-3">';
+          incompatibleWarnings.forEach(w => {
+            html += `<div class="p-4 rounded-lg bg-orange-50 border-2 border-orange-300">
+              <strong class="text-orange-900">${w.plant}</strong>
+              <div class="text-sm text-orange-800 mt-1">${w.reason}</div>
+            </div>`;
+          });
+          html += '</div>';
+        }
+
+        // SEÇÃO 1.7: HARMONIZAÇÃO DO PROJETO
+        if (projectOverviewFinal) {
+          html += `<h3 class="text-xl font-bold text-emerald-900 mt-8 mb-4 border-b-2 border-emerald-500 pb-2">🌿 Harmonização do Projeto</h3>`;
+          html += `<div class="p-6 rounded-xl bg-emerald-50 border-2 border-emerald-300 text-sm text-emerald-800 leading-relaxed">${markdownToHtml(projectOverviewFinal)}</div>`;
         }
 
         // SEÇÃO 2: PLANTAS ALTERNATIVAS SUGERIDAS
