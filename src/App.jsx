@@ -371,6 +371,48 @@ const plantData = [
         "Tags": "Frutífera; Tropical; Atrai Pássaros; Flores Perfumadas"
     },
     {
+        "Nome": "Hibisco",
+        "Nome Científico": "Hibiscus rosa-sinensis",
+        "Descrição": "Arbusto tropical clássico. Flores vibrantes o ano todo. Perfeito para cercas vivas ensolaradas.",
+        "Altura": "2-4 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Exótica",
+        "Grupo": "Arbusto",
+        "Frutifera": false,
+        "Tags": "Cerca Viva; Floração Intensa; Resistente"
+    },
+    {
+        "Nome": "Coqueiro",
+        "Nome Científico": "Cocos nucifera",
+        "Descrição": "Símbolo do litoral baiano. Dá frutos refrescantes e exige espaço, mas cria o visual tropical definitivo.",
+        "Altura": "10-30 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Quintal (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Exótica",
+        "Grupo": "Palmeira",
+        "Frutifera": true,
+        "Tags": "Tropical; Símbolo da Bahia; Frutífera; Litoral"
+    },
+    {
+        "Nome": "Castanheira-da-praia",
+        "Nome Científico": "Terminalia catappa",
+        "Descrição": "Também chamada de Amendoeira. Cria uma sombra densa e refrescante. Ótima para calçadas largas, mas perde muitas folhas.",
+        "Altura": "10-20 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Quintal (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Exótica",
+        "Grupo": "Árvore",
+        "Frutifera": true,
+        "Tags": "Sombra Densa; Resistente à Maresia; Caducifólia"
+    },
+    {
         "Nome": "Jequitibá-rosa",
         "Nome Científico": "Cariniana legalis",
         "Descrição": "O gigante da floresta. Árvore monumental para grandes espaços e parques.",
@@ -1036,6 +1078,7 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         // plants relevant to the current selection/plan to avoid unrelated site-wide lists.
         const finalPlacements = [];
         const movedAlternatives = [];
+        const reMoved = [];
         for (const s of placements) {
           const suitableFlag = (s.suitable !== undefined) ? s.suitable : (s.suitability !== undefined ? s.suitability : true);
           if (suitableFlag === false || suitableFlag === 'no' || String(suitableFlag).toLowerCase() === 'não' || String(suitableFlag).toLowerCase() === 'nao') {
@@ -1043,8 +1086,11 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
             if (repl && typeof repl === 'string' && validPlants.has(repl.toLowerCase()) && !selectedSet.has(repl.toLowerCase())) {
               movedAlternatives.push({ plant: repl, reason: `Substitui ${s.plant} por não ser adequado para o local` });
             }
+            const removedPlantName = String(s.plant || s.name || s.plantName || '').trim();
             // add a caution only for this selected plant
-            cautions.push({ plant: s.plant, toxicity: '', safety_tip: `Não adequado para o local; considere substituir ou reposicionar.` });
+            cautions.push({ plant: removedPlantName || s.plant, toxicity: '', safety_tip: `Não adequado para o local; considere substituir ou reposicionar.` });
+            // mark as removed due to unsuitability so it appears in incompatibilities
+            reMoved.push({ ...s, plant: removedPlantName });
             continue;
           }
           finalPlacements.push(s);
@@ -1052,6 +1098,24 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
 
         placements = finalPlacements;
         if (movedAlternatives.length > 0) alternatives = alternatives.concat(movedAlternatives);
+
+        // Track selected plants that did NOT make it into projectPlacements or were removed above
+        // This ensures all selected incompatible plants show in "Plantas Incompatíveis" section.
+        const placementsSet = new Set(placements.map(p => String(p.plant || '').toLowerCase()));
+        for (const selectedPlant of selectedPlants) {
+          const selectedName = String(selectedPlant.Nome || '').toLowerCase();
+          // If selected plant is not in final placements and not already in reMoved, check why
+          if (!placementsSet.has(selectedName) && !reMoved.find(r => String(r.plant || '').toLowerCase() === selectedName)) {
+            // This plant was either marked unsuitable by the model, or the model didn't include it.
+            // Add it to reMoved so it appears in incompatibilities.
+            const plantObj = plantData.find(p => String(p.Nome || '').toLowerCase() === selectedName);
+            reMoved.push({
+              plant: selectedPlant.Nome || selectedPlant.plant || selectedName,
+              name: selectedPlant.Nome || selectedPlant.plant || selectedName,
+              Nome: selectedPlant.Nome || selectedPlant.plant || selectedName
+            });
+          }
+        }
 
         // Post-process: ensure each placement is actually suitable for the selected space
         // (e.g., block trees or gramados on 'Pequeno (Varanda)'). If not suitable, move to alternatives
@@ -1074,9 +1138,8 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
 
         const selectedSpaceCat = getSpaceCategory(spaceKeyNorm);
         const allowedKeywords = spaceKeywordsMap[selectedSpaceCat] || [];
-        const reMoved = [];
         if (selectedSpaceCat) {
-          const newPlacements = [];
+          const newPlacements = []; 
           for (const s of placements) {
             const plantName = String(s.plant || '').toLowerCase();
             const plant = plantData.find(p => p.Nome.toLowerCase() === plantName);
@@ -1093,9 +1156,10 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
               if (!alternatives.find(a => String(a.plant || '').toLowerCase() === plantName)) {
                 alternatives.push({ plant: plant ? plant.Nome : s.plant, reason: `Não compatível com o espaço selecionado (${userInfo.spaceSize}).` });
               }
+              const removedPlantName = String(s.plant || s.name || s.plantName || (plant ? plant.Nome : '')).trim();
               // add caution limited to this plant
-              cautions.push({ plant: plant ? plant.Nome : s.plant, toxicity: '', safety_tip: `Não adequado para ${userInfo.spaceSize}. Considere uma planta em vaso ou escolher outra espécie.` });
-              reMoved.push(s);
+              cautions.push({ plant: removedPlantName || (plant ? plant.Nome : s.plant), toxicity: '', safety_tip: `Não adequado para ${userInfo.spaceSize}. Considere uma planta em vaso ou escolher outra espécie.` });
+              reMoved.push({ ...s, plant: removedPlantName });
             } else {
               newPlacements.push(s);
             }
@@ -1103,24 +1167,109 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
           placements = newPlacements;
         }
 
-        let html = '';
-        html += `<h2 class="text-2xl font-bold text-emerald-900 mb-4">Seu Projeto Paisagístico</h2>`;
-        html += `<div class="ai-overview mb-6 p-4 bg-emerald-50/50 rounded-lg">${markdownToHtml(projectOverview)}</div>`;
+        let html = ''; // overview will be injected after compatibility checks so it reflects removals and substitutions`
         
         
         
         // SEÇÃO 0: INCOMPATIBILIDADE COM TAMANHO DO ESPAÇO (mostrar primeiro)
-        const placementsSet = new Set(placements.map(p => String(p.plant).toLowerCase()));
-        const incompatibleWarnings = (Array.isArray(reMoved) ? reMoved : []).map(s => {
-          const plantName = String(s.plant || '').toLowerCase();
-          const plant = plantData.find(p => p.Nome.toLowerCase() === plantName);
+        const normalizePlantName = (name) => {
+          if (!name) return '';
+          if (typeof name === 'object') {
+            return String(name.Nome || name.plant || name.name || '').trim().toLowerCase();
+          }
+          return String(name).trim().toLowerCase();
+        };
+        const uniqueRemoved = Array.from(new Map((Array.isArray(reMoved) ? reMoved : []).map(r => [normalizePlantName(r.plant), r])).values()).filter(r => normalizePlantName(r.plant) !== '');
+        const incompatibleWarnings = uniqueRemoved.map(s => {
+          const plantName = normalizePlantName(s.plant);
+          const plant = plantData.find(p => normalizePlantName(p.Nome) === plantName);
           return {
-            plant: plant ? plant.Nome : s.plant,
+            plant: plant ? plant.Nome : (s.plant || s.name || ''),
             reason: plant && Array.isArray(plant.Espacos) 
               ? `Disponível em: ${plant.Espacos.join(', ')}. Você selecionou: ${userInfo.spaceSize}.`
               : `Não compatível com ${userInfo.spaceSize}.`
           };
         });
+
+        // Extract removed plant names for reference
+        const removedNames = uniqueRemoved.map(r => String(r.plant || '').trim()).filter(Boolean).map(n => {
+          const pd = plantData.find(p => normalizePlantName(p.Nome) === normalizePlantName(n));
+          return pd ? pd.Nome : n;
+        });
+
+        // Build project overview: if there are removed plants, use a generic template
+        // instead of trying to surgically remove plant names from the AI-generated text
+        // (which results in broken sentences like "O, embora...")
+        let projectOverviewFinal = projectOverview || '';
+        let finalNotes = parsed.notes || '';
+        
+        if (removedNames.length > 0) {
+          // If many plants were removed, replace the entire overview with a neutral template
+          // to avoid broken grammar from removing specific plant names
+          projectOverviewFinal = `Projeto de paisagismo adaptado para ${userInfo.spaceSize}. Priorizamos plantas que se adequam ao espaço disponível, com ênfase em fácil manejo e manutenção. O design utiliza vasos e soluções que maximizam o uso do espaço sem comprometer a estética.`;
+          finalNotes = `Recomendações gerais: mantenha as plantas em local com luminosidade adequada, regue conforme a necessidade de cada espécie e realize podas regulares para manter o formato e estimular o crescimento. Adapte o espaçamento dos vasos conforme a disponibilidade do espaço e o crescimento das plantas.`;
+        } else if (placements.length > 0) {
+          // Se nenhuma planta foi removida, gera um resumo melhorado considerando o projeto real
+          try {
+            const placementsList = placements.map(p => {
+              const plantName = String(p.plant || '').toLowerCase();
+              const plantData_item = plantData.find(pd => pd.Nome.toLowerCase() === plantName);
+              return {
+                name: p.plant,
+                location: p.location || '',
+                luz: plantData_item?.Luz || 'Não especificado',
+                rega: p.watering || 'Conforme necessário',
+                altura: plantData_item?.Altura || 'Variável'
+              };
+            });
+
+            const placementsInfo = placementsList.map(p => 
+              `- ${p.name}: ${p.location || 'local'}, Luz: ${p.luz}, Rega: ${p.rega}`
+            ).join('\n');
+
+            const improvedPrompt = `Você é um paisagista especializado. Com base no projeto de paisagismo a seguir, gere:
+1. Um RESUMO EXECUTIVO (2-3 frases) descrevendo a estratégia do projeto considerando APENAS as plantas que ficaram.
+2. SUGESTÕES DE POSICIONAMENTO considerando as necessidades de luz e rega de cada planta, incluindo quais plantas podem ficar próximas (complementares) e quais devem ficar afastadas.
+3. DICAS PRÁTICAS de manutenção específicas para este projeto.
+
+Plantas selecionadas:
+${placementsInfo}
+
+Espaço: ${userInfo.spaceSize}
+Usuário tem pets: ${userHasPets}
+Usuário tem crianças: ${userHasChildren}
+
+Gere um texto profissional, prático e específico para estas plantas.`;
+
+            const improvedResponse = await fetch(finalUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contents: [{ parts: [{ text: improvedPrompt }] }] })
+            });
+
+            if (improvedResponse.ok) {
+              const improvedData = await improvedResponse.json();
+              const improvedText = improvedData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+              if (improvedText && improvedText.trim()) {
+                // Split improved response into overview and notes
+                const sections = improvedText.split(/\n\d+\.\s+/);
+                if (sections.length > 0) {
+                  projectOverviewFinal = sections[0].trim();
+                  if (sections.length > 1) {
+                    finalNotes = sections.slice(1).map(s => s.trim()).join('\n\n');
+                  }
+                }
+              }
+            }
+          } catch (improvementError) {
+            console.warn('Erro ao gerar resumo melhorado:', improvementError);
+            // Keep the original text if improvement fails
+          }
+        }
+        
+        // Now inject the (possibly updated) overview into the HTML
+        html += `<h2 class="text-2xl font-bold text-emerald-900 mb-4">Seu Projeto Paisagístico</h2>`;
+        html += `<div class="ai-overview mb-6 p-4 bg-emerald-50/50 rounded-lg">${markdownToHtml(projectOverviewFinal)}</div>`;
 
         if (incompatibleWarnings.length > 0) {
           html += `<div class="p-6 rounded-2xl bg-orange-50 border-2 border-orange-300 mb-6">
@@ -1166,7 +1315,7 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
 
         // SEÇÃO 2: PLANTAS ALTERNATIVAS SUGERIDAS
         // Filter alternatives: must be valid plants, not selected, and compatible with the space
-        const removedSet = new Set((Array.isArray(reMoved) ? reMoved : []).map(r => String(r.plant || '').toLowerCase()));
+        const removedSet = new Set((Array.isArray(reMoved) ? reMoved : []).map(r => normalizePlantName(r.plant)).filter(Boolean));
         const validAlternatives = (Array.isArray(alternatives) ? alternatives : []).filter(a => {
           const plantName = String(a.plant || '').toLowerCase();
           // Exclude if selected, incompatible with space, or removed due to incompatibility
@@ -1178,10 +1327,26 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
           const altAllowed = altEspacos.some(e => allowedKeywords.some(k => e.includes(k)));
           return altAllowed;
         });
-        if (validAlternatives.length > 0) {
+        
+        // If no alternatives from IA, suggest compatible plants automatically
+        let finalAlternatives = validAlternatives.slice();
+        if (finalAlternatives.length === 0 && selectedSpaceCat) {
+          // Suggest up to 3 compatible plants that weren't selected
+          const suggestedPlants = plantData.filter(p => {
+            const pName = String(p.Nome || '').toLowerCase();
+            if (selectedSet.has(pName) || removedSet.has(pName)) return false; // Already selected or removed
+            if (!Array.isArray(p.Espacos)) return false;
+            const pEspacos = p.Espacos.map(e => String(e).toLowerCase());
+            const pAllowed = pEspacos.some(e => allowedKeywords.some(k => e.includes(k)));
+            return pAllowed;
+          }).slice(0, 3);
+          finalAlternatives = suggestedPlants.map(p => ({ plant: p.Nome, reason: 'Compatível com o espaço selecionado' }));
+        }
+        
+        if (finalAlternatives.length > 0) {
           html += `<h3 class="text-xl font-bold text-emerald-900 mt-8 mb-4 border-b-2 border-lime-500 pb-2">Outras plantas que podem se encaixar</h3>`;
           html += '<div class="grid gap-3">';
-          validAlternatives.forEach(a => {
+          finalAlternatives.forEach(a => {
             const plantName = a.plant;
             const p = plantData.find(pp => pp.Nome.toLowerCase() === plantName.toLowerCase());
             const img = p ? getPlantImage(p.Nome) : '';
@@ -1192,11 +1357,12 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
 
         // SEÇÃO 3: ALERTAS DE TOXICIDADE (se aplicável)
         // Include cautions for: placements, alternatives, selected plants, AND plants removed due to space incompatibility
-        const alternativesSet = new Set(validAlternatives.map(a => String(a.plant).toLowerCase()));
+        const alternativesSet = new Set(finalAlternatives.map(a => String(a.plant).toLowerCase()));
+        const placementsSetLower = new Set(placements.map(p => String(p.plant).toLowerCase()));
         const finalCautions = (Array.isArray(cautions) ? cautions : []).filter(c => {
           const cPlantLower = String(c.plant).toLowerCase();
           // Include if relevant to placements, alternatives, selected plants.
-          return selectedSet.has(cPlantLower) || placementsSet.has(cPlantLower) || alternativesSet.has(cPlantLower);
+          return (selectedSet.has(cPlantLower) || placementsSetLower.has(cPlantLower) || alternativesSet.has(cPlantLower)) && !removedSet.has(cPlantLower);;
         });
         if (finalCautions && finalCautions.length > 0) {
           html += `<h3 class="text-lg font-bold text-rose-900 mt-8 mb-4 border-b-2 border-rose-500 pb-2">⚠️ Plantas Tóxicas - Dicas de Segurança</h3>`;
@@ -1211,7 +1377,10 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
           html += '</div>';
         }
 
-        if (parsed.notes) html += `<h3 class="text-lg font-bold text-emerald-900 mt-8 mb-2">📝 Notas Finais</h3><div class="mt-2 text-sm text-emerald-700 bg-white/50 p-4 rounded-lg">${markdownToHtml(parsed.notes)}</div>`;
+        // GERAÇÃO DE RESUMO E NOTAS FINAIS MELHORADOS (movido para antes das injeções de HTML)
+        // Ver seção anterior onde projectOverviewFinal e finalNotes são definidos
+
+        if (finalNotes) html += `<h3 class="text-lg font-bold text-emerald-900 mt-8 mb-2">📝 Notas Finais</h3><div class="mt-2 text-sm text-emerald-700 bg-white/50 p-4 rounded-lg">${markdownToHtml(finalNotes)}</div>`;
 
         // sanitize result if possible
         try {
@@ -1248,15 +1417,11 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-300/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-300/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-white/30 pb-6 relative z-10">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl text-white shadow-xl shadow-emerald-500/30">
-               <Home size={32} strokeWidth={2.5} />
-            </div>
-            <div>
-              <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-900 to-teal-800 tracking-tight">Seu Projeto</h2>
-              <p className="text-emerald-700 font-bold">Paisagismo Residencial Personalizado</p>
-            </div>
+        <div className="flex flex-col items-center justify-center gap-6 mb-8 border-b border-white/30 pb-6 relative z-10">
+          <img src="/catalogo-flora-ilheus/images/logo.png" alt="Logo" className="w-20 h-20 rounded-full shadow-xl shadow-emerald-500/30 object-cover" />
+          <div className="text-center">
+            <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-900 to-teal-800 tracking-tight">Seu Projeto</h2>
+            <p className="text-emerald-700 font-bold">Paisagismo Residencial Personalizado</p>
           </div>
           
           {selectedPlants.length > 0 && !loading && !aiAdvice && (
@@ -1398,8 +1563,20 @@ export default function PaisagismoIlheus() {
   }, [search, filters]);
 
   const togglePlant = (plant) => {
-    if (selectedPlants.find(p => p.Nome === plant.Nome)) setSelectedPlants(prev => prev.filter(p => p.Nome !== plant.Nome));
-    else setSelectedPlants(prev => [...prev, plant]);
+    // 1. Se já está na lista, remove
+    if (selectedPlants.find(p => p.Nome === plant.Nome)) {
+        setSelectedPlants(prev => prev.filter(p => p.Nome !== plant.Nome));
+    } else {
+        // 2. Se NÃO está na lista, verifica o limite antes de adicionar
+        // --- LIMITE RESTRITO PARA 10 PLANTAS ---
+        if (selectedPlants.length >= 10) {
+            alert("Para garantir a melhor qualidade do plano, selecione no máximo 10 plantas por vez.");
+            return; // Para tudo aqui e não adiciona
+        }
+        
+        // Se passou pelo if acima, adiciona a planta
+        setSelectedPlants(prev => [...prev, plant]);
+    }
   };
 
   return (
