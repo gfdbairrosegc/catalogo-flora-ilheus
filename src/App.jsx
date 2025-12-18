@@ -1106,7 +1106,16 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         let html = '';
         html += `<h2 class="text-2xl font-bold text-emerald-900 mb-4">Seu Projeto Paisagístico</h2>`;
         html += `<div class="ai-overview mb-6 p-4 bg-emerald-50/50 rounded-lg">${markdownToHtml(projectOverview)}</div>`;
-
+        
+        {/* --- ADICIONE ESTE BOTÃO AQUI --- */}
+        <button 
+            onClick={() => setSelectedPlants([])} 
+            className="flex items-center gap-1 text-[10px] font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-100 px-2 py-1 rounded-lg transition-all uppercase tracking-wider"
+        >
+            <Trash2 size={10} /> Limpar Tudo
+        </button>
+        {/* ------------------------------- */}
+        
         // SEÇÃO 0: INCOMPATIBILIDADE COM TAMANHO DO ESPAÇO (mostrar primeiro)
         const placementsSet = new Set(placements.map(p => String(p.plant).toLowerCase()));
         const incompatibleWarnings = (Array.isArray(reMoved) ? reMoved : []).map(s => {
@@ -1498,14 +1507,7 @@ export default function PaisagismoIlheus() {
             >
                 Meu Jardim
                 {selectedPlants.length > 0 && <span className="bg-lime-400 text-emerald-900 text-[10px] px-2 py-0.5 rounded-full animate-pulse">{selectedPlants.length}</span>}
-                {/* --- ADICIONE ESTE BOTÃO AQUI --- */}
-                <button 
-                    onClick={() => setSelectedPlants([])} 
-                    className="flex items-center gap-1 text-[10px] font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-100 px-2 py-1 rounded-lg transition-all uppercase tracking-wider"
-                >
-                    <Trash2 size={10} /> Limpar Tudo
-                </button>
-                {/* ------------------------------- */}
+                
             </button>
         </div>
     </div>
