@@ -1498,6 +1498,14 @@ export default function PaisagismoIlheus() {
             >
                 Meu Jardim
                 {selectedPlants.length > 0 && <span className="bg-lime-400 text-emerald-900 text-[10px] px-2 py-0.5 rounded-full animate-pulse">{selectedPlants.length}</span>}
+                {/* --- ADICIONE ESTE BOTÃO AQUI --- */}
+                <button 
+                    onClick={() => setSelectedPlants([])} 
+                    className="flex items-center gap-1 text-[10px] font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-100 px-2 py-1 rounded-lg transition-all uppercase tracking-wider"
+                >
+                    <Trash2 size={10} /> Limpar Tudo
+                </button>
+                {/* ------------------------------- */}
             </button>
         </div>
     </div>
