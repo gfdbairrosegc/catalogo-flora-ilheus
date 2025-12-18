@@ -413,6 +413,76 @@ const plantData = [
         "Tags": "Folhagem Ornamental; Sombra; Forração"
     },
     {
+        "Nome": "Açoita-cavalo",
+        "Nome Científico": "Luehea divaricata",
+        "Descrição": "Árvore nativa de crescimento rápido com flores em tons de roxo e branco. Madeira flexível e ótima sombra.",
+        "Altura": "15-30 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Quintal (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Reflorestamento; Melífera; Sombra Densa"
+    },
+    {
+        "Nome": "Jacarandá-da-Bahia",
+        "Nome Científico": "Dalbergia nigra",
+        "Descrição": "Árvore nobre e ameaçada, símbolo da Bahia. Madeira escura valiosa e perfume adocicado nas flores.",
+        "Altura": "15-25 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Baixa",
+        "Espacos": ["Quintal (Grande)"],
+        "Dificuldade": "Difícil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Ameaçada de Extinção; Madeira Nobre; Histórica"
+    },
+    {
+        "Nome": "Guanandi",
+        "Nome Científico": "Calophyllum brasiliense",
+        "Descrição": "Árvore majestosa que tolera solos encharcados. Folhagem brilhante e ornamental.",
+        "Altura": "20-30 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Alta",
+        "Espacos": ["Quintal (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Madeira de Lei; Áreas Úmidas; Reflorestamento"
+    },
+    {
+        "Nome": "Ingá",
+        "Nome Científico": "Inga edulis",
+        "Descrição": "Conhecido como Ingá-cipó. Produz vagens grandes com polpa doce e branca. Atrai muita fauna.",
+        "Altura": "10-15 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Jardim (Médio)", "Quintal (Grande)"],
+        "Dificuldade": "Fácil",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": true,
+        "Tags": "Frutífera; Atrai Pássaros; Fixadora de Nitrogênio"
+    },
+    {
+        "Nome": "Copaíba",
+        "Nome Científico": "Copaifera langsdorffii",
+        "Descrição": "Conhecida como 'árvore milagrosa' pelo seu óleo medicinal. Copa ampla e frondosa.",
+        "Altura": "15-25 m",
+        "Luz Solar": "Sol Pleno",
+        "Necessidade de Água": "Média",
+        "Espacos": ["Quintal (Grande)"],
+        "Dificuldade": "Moderada",
+        "Origem": "Nativa",
+        "Grupo": "Árvore",
+        "Frutifera": false,
+        "Tags": "Medicinal; Óleo Essencial; Atrai Fauna"
+    },
+    {
         "Nome": "Orquídea Cattleya",
         "Nome Científico": "Cattleya schofieldiana",
         "Descrição": "Orquídea epífita com flores grandes e perfumadas. Exige cuidados específicos.",
@@ -912,7 +982,7 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
 
       const jsonInstruction = `Você é um assistente de paisagismo. Use APENAS plantas da lista fornecida. Disponíveis: ${availableNames}. Selecionadas: ${selectedNames}. ` +
         `Informações do usuário: espaço=${spaceSize}, temPets=${userHasPets}, temCrianças=${userHasChildren}. ${extraSpaceConstraints} ` +
-        `ESTRUTURA DO JSON: { "project": { "overview": "texto curto", "placements": [{ "plant": "Nome", "location": "onde", "reason": "motivo", "watering": "frequência (ex: 2x por semana)", "fertilizing": "plano (ex: mensal com NPK 10-10-10)" }] }, "cautions": [{ "plant": "Nome (se tóxica)", "toxicity": "breve descrição", "safety_tip": "como usar com segurança (ex: colocar num local alto, longe de pets)" }], "alternatives": [{ "plant": "Nome", "reason": "por quê" }], "notes": "observações" }. Para cada planta SELECIONADA, inclua um plano específico de rega e adubagem baseado em suas necessidades. Se temPets ou temCrianças for true, NÃO coloque plantas tóxicas em 'placements'; coloque em 'cautions' com uma dica de segurança. Retorne apenas JSON, sem texto adicional.`;
+        `ESTRUTURA DO JSON: { "project": { "overview": "texto curto", "placements": [{ "plant": "Nome", "location": "onde", "reason": "motivo", "watering": "frequência (ex: 2x por semana)", "fertilizing": "plano (ex: mensal com NPK 10-10-10)" }] }, "cautions": [{ "plant": "Nome (se tóxica)", "toxicity": "breve descrição", "safety_tip": "como usar com segurança (ex: colocar num local alto, longe de pets)" }], "alternatives": [{ "plant": "Nome", "reason": "por quê" }], "notes": "observações" }. Para cada planta SELECIONADA, inclua um plano específico de rega e adubagem baseado em suas necessidades. Se temPets ou temCrianças for true, coloque plantas tóxicas em 'placements' e em 'cautions' com uma dica de segurança. Retorne apenas JSON, sem texto adicional.`;
 
       const prompt = `${promptFinal}\n\n${jsonInstruction}`;
 
@@ -1123,8 +1193,8 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
         const alternativesSet = new Set(validAlternatives.map(a => String(a.plant).toLowerCase()));
         const finalCautions = (Array.isArray(cautions) ? cautions : []).filter(c => {
           const cPlantLower = String(c.plant).toLowerCase();
-          // Include if relevant to placements, alternatives, selected plants, or space-incompatible plants (removedSet)
-          return selectedSet.has(cPlantLower) || placementsSet.has(cPlantLower) || alternativesSet.has(cPlantLower) || removedSet.has(cPlantLower);
+          // Include if relevant to placements, alternatives, selected plants.
+          return selectedSet.has(cPlantLower) || placementsSet.has(cPlantLower) || alternativesSet.has(cPlantLower);
         });
         if (finalCautions && finalCautions.length > 0) {
           html += `<h3 class="text-lg font-bold text-rose-900 mt-8 mb-4 border-b-2 border-rose-500 pb-2">⚠️ Plantas Tóxicas - Dicas de Segurança</h3>`;
