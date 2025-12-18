@@ -1093,6 +1093,9 @@ const GardenPlan = ({ selectedPlants, onRemove }) => {
               if (!alternatives.find(a => String(a.plant || '').toLowerCase() === plantName)) {
                 alternatives.push({ plant: plant ? plant.Nome : s.plant, reason: `Não compatível com o espaço selecionado (${userInfo.spaceSize}).` });
               }
+              // add caution limited to this plant
+              cautions.push({ plant: plant ? plant.Nome : s.plant, toxicity: '', safety_tip: `Não adequado para ${userInfo.spaceSize}. Considere uma planta em vaso ou escolher outra espécie.` });
+              reMoved.push(s);
             } else {
               newPlacements.push(s);
             }
