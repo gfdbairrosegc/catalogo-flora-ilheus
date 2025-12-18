@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { 
   Leaf, 
-    
   Home,     
   Maximize,
   Globe, 
@@ -9,20 +8,20 @@ import {
   Flower,
   X,
   Filter,
-  PawPrint, // Adicionado para corrigir o erro
-  Baby,     // Adicionado para corrigir o erro
-  Smile,    // Adicionado
-  Search,   // Adicionado
-  Sun,      // Adicionado
-  Activity, // Adicionado
-  Sprout,   // Adicionado
-  Wind,     // Adicionado
-  Minus,    // Adicionado
-  Plus,     // Adicionado
-  Trash2,   // Adicionado
-  Sparkles, // Adicionado
-  Loader,   // Adicionado
-  ArrowRight // Adicionado
+  PawPrint,
+  Baby,
+  Smile,
+  Search,
+  Sun,
+  Activity,
+  Sprout,
+  Wind,
+  Minus,
+  Plus,
+  Trash2,
+  Sparkles,
+  Loader,
+  ArrowRight
 } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DE IMAGENS ---
@@ -86,7 +85,6 @@ const plantData = [
       "Frutifera": false,
       "Tags": "Cerca Viva; Crescimento Rápido; Ornamental; Requer Controle de Raiz"
     },
-    
     {
         "Nome": "Bromélia Imperial",
         "Nome Científico": "Alcantarea imperialis",
@@ -185,7 +183,6 @@ const plantData = [
         "Frutifera": false,
         "Tags": "Forração; Flores Amarelas; Sem Poda"
     },
-    
     {
         "Nome": "Grama Esmeralda",
         "Nome Científico": "Zoysia japonica",
@@ -200,7 +197,6 @@ const plantData = [
         "Frutifera": false,
         "Tags": "Forração; Resistente ao Pisoteio"
     },
-    
     {
         "Nome": "Grama Santo Agostinho",
         "Nome Científico": "Stenotaphrum secundatum",
@@ -215,7 +211,6 @@ const plantData = [
         "Frutifera": false,
         "Tags": "Gramado; Litoral; Resistente à Maresia"
     },
-    
     {
         "Nome": "Grumixama",
         "Nome Científico": "Eugenia brasiliensis",
@@ -595,7 +590,6 @@ const formatImageURL = (url, plantName) => {
   
   return url;
 };
-
 // Gera caminho local para imagens das plantas (normaliza nomes: lowercase, sem acentos, espaços -> hífens)
 const getPlantImage = (plantName) => {
   if (!plantName) return '';
@@ -605,11 +599,9 @@ const getPlantImage = (plantName) => {
     .replace(/\p{Diacritic}/gu, '')
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '');
-
   const basePath = import.meta.env.BASE_URL || '/'; // Pega a base correta (/catalogo-flora-ilheus/)
   return `${basePath}images/${cleanName}.jpg`;
 };
-
 // Converte uma string simples em Markdown para HTML básico (headings, listas, bold/italic, links)
 // NOTA: o resultado NÃO é sanitizado — em produção, use DOMPurify.sanitize(html) antes de inserir no DOM.
 const markdownToHtml = (md) => {
@@ -645,14 +637,12 @@ const markdownToHtml = (md) => {
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-
     out += `<p>${inline}</p>`;
   }
 
   if (inList) out += '</ul>';
   return out;
 };
-
 // --- COMPONENTS ---
 
 const FilterSelect = ({ label, options, selected, onChange, icon: Icon }) => (
@@ -679,650 +669,347 @@ const FilterSelect = ({ label, options, selected, onChange, icon: Icon }) => (
   </div>
 );
 
-const FilterToggle = ({ label, isActive, onToggle, icon: Icon }) => (
-    <button 
-        onClick={onToggle}
-        className={`flex items-center justify-between w-full px-4 py-3 rounded-xl border transition-all duration-300 group ${isActive ? 'bg-gradient-to-r from-lime-500 to-emerald-500 text-white border-transparent shadow-lg shadow-emerald-500/30' : 'bg-white/50 border-white/60 text-emerald-800 hover:bg-white hover:shadow-md'}`}
-    >
-        <div className="flex items-center gap-3">
-            <Icon size={18} className={isActive ? 'text-white' : 'text-emerald-600'} />
-            <span className="font-bold text-sm">{label}</span>
-        </div>
-        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isActive ? 'border-white bg-white text-emerald-600' : 'border-emerald-300 bg-transparent'}`}>
-            {isActive && <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />}
-        </div>
-    </button>
-);
-
-const Tag = ({ text, color }) => (
-  <span className={`px-2 py-1 text-[10px] uppercase tracking-wider font-bold rounded-full shadow-sm backdrop-blur-md bg-opacity-90 border border-white/40 ${color} transition-transform hover:scale-105`}>
+const Tag = ({ text, color = "bg-emerald-100 text-emerald-800" }) => (
+  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${color} border border-black/5`}>
     {text}
   </span>
 );
 
-const PlantCard = ({ plant, isSelected, onToggle }) => {
-  const imageSrc = plant.Imagem ? formatImageURL(plant.Imagem, plant.Nome) : getPlantImage(plant.Nome);
-  const isNative = plant.Origem === "Nativa";
-
-  // Ícone de Grupo dinâmico (Usando ícones seguros e importados)
-  let GroupIcon = Leaf;
-  if(plant.Grupo === "Árvore") GroupIcon = Sprout; 
-  if(plant.Grupo === "Arbusto") GroupIcon = Leaf;
-  if(plant.Grupo === "Gramado" || plant.Grupo === "Forração") GroupIcon = Wind;
-  if(plant.Grupo === "Herbácea") GroupIcon = Flower;
-
-  return (
-    <div 
-      className={`
-      group relative flex flex-col h-full 
-      bg-white border border-emerald-100/80 shadow-sm 
-      rounded-[2rem] overflow-hidden transition-all duration-300 
-      hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1
-      ${isSelected ? 'ring-2 ring-emerald-500 ring-offset-2' : ''}
-    `}
-      onClick={() => onToggle(plant)}
-    >
-      <div className="h-56 overflow-hidden relative">
-           <img 
-             src={imageSrc}
-             alt={plant.Nome}
-             loading="lazy"
-             decoding="async"
-             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-             onError={(e) => {
-               const el = e.target;
-               try {
-                 const attempts = parseInt(el.dataset.attempts || '0', 10);
-                 const src = el.src || '';
-                 const m = src.match(/(\.jpe?g|\.png|\.webp)(\?.*)?$/i);
-                 const base = m ? src.slice(0, m.index) : src;
-                 const query = m && m[2] ? m[2] : '';
-
-                 // 0: try .webp, 1: try .png, otherwise fallback
-                 if (attempts === 0) {
-                   el.dataset.attempts = '1';
-                   el.src = base + '.webp' + query;
-                   return;
-                 }
-                 if (attempts === 1) {
-                   el.dataset.attempts = '2';
-                   el.src = base + '.png' + query;
-                   return;
-                 }
-               } catch (err) {
-                 // ignore and fallback
-               }
-               el.onerror = null;
-               el.src = "https://placehold.co/600x400?text=Sem+Foto";
-             }}
-           />
-        
-        {/* Gradiente Elegante */}
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent opacity-80"></div>
-        
-        {/* Badge de Origem Glass */}
-        <div className="absolute top-3 left-3">
-            <span className={`px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg backdrop-blur-md border border-white/30 flex items-center gap-1 shadow-lg ${isNative ? 'bg-emerald-600/80 text-white' : 'bg-amber-600/80 text-white'}`}>
-                {isNative ? <Leaf size={10} /> : <Globe size={10} />}
-                {plant.Origem}
-            </span>
-        </div>
-
-        {/* Badge de Frutífera (Se aplicável) */}
-        {plant.Frutifera && (
-            <div className="absolute top-3 right-14">
-                <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg backdrop-blur-md border border-white/30 flex items-center gap-1 shadow-lg bg-rose-500/90 text-white">
-                    <Sprout size={10} /> Frutífera
-                </span>
-            </div>
-        )}
-
-        <div className="absolute bottom-4 left-4 right-4 text-white">
-            <h3 className="text-xl font-bold leading-tight drop-shadow-md text-white">{plant.Nome}</h3>
-            <p className="text-xs text-lime-100 font-medium opacity-90 drop-shadow-sm">{plant["Nome Científico"]}</p>
-        </div>
-
-        <div className="absolute top-3 right-3">
-           <button className={`p-2 rounded-full transition-all duration-300 shadow-lg ${isSelected ? 'bg-gradient-to-r from-lime-500 to-green-500 text-white scale-110 rotate-90' : 'bg-white/30 text-white hover:bg-white hover:text-emerald-700 backdrop-blur-md'}`}>
-             {isSelected ? <Minus size={18} /> : <Plus size={18} />}
-           </button>
-        </div>
-      </div>
-      
-      <div className="p-5 flex-1 flex flex-col">
-        
-        {/* 1. LINHA DE METADADOS: Grupo */}
-        <div className="flex flex-wrap gap-2 mb-4">
-             {/* Tag Grupo */}
-            <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg backdrop-blur-md border border-slate-200 bg-slate-100 text-slate-600 flex items-center gap-1 shadow-sm w-fit">
-                <GroupIcon size={10} /> {plant.Grupo}
-            </span>
-        </div>
-
-        {/* 2. LINHA DE TAGS FUNCIONAIS: Sol, Água */}
-        <div className="flex flex-wrap gap-2 mb-3">
-           {plant["Luz Solar"] === "Sol Pleno" && <Tag text="☀️ Sol" color="bg-amber-100 text-amber-800 border-amber-200" />}
-           {plant["Luz Solar"] === "Meia Sombra" && <Tag text="⛅ Meia Sombra" color="bg-orange-100 text-orange-800 border-orange-200" />}
-           {plant["Luz Solar"] === "Sombra" && <Tag text="☁️ Sombra" color="bg-blue-100 text-blue-800 border-blue-200" />}
-           
-           <Tag text={`💧 ${plant["Necessidade de Água"]}`} color="bg-sky-100 text-sky-800 border-sky-200" />
-        </div>
-        
-        <p className="text-sm text-emerald-900/80 line-clamp-3 mb-4 leading-relaxed font-medium">{plant.Descrição}</p>
-        
-        <div className="mt-auto pt-3 border-t border-emerald-100/50 flex justify-between items-center text-xs text-emerald-800 font-semibold">
-            <span className="flex items-center gap-1 opacity-70">
-                <Leaf size={14} /> Altura: {plant.Altura}
-            </span>
-            <span className={`font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${plant.Dificuldade === 'Fácil' ? 'bg-green-100 text-green-700' : plant.Dificuldade === 'Moderada' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
-                {plant.Dificuldade}
-            </span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
+// --- COMPONENTE DO PLANO GERADO ---
 const GardenPlan = ({ selectedPlants, onRemove }) => {
-  const [aiAdvice, setAiAdvice] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [userInfo, setUserInfo] = useState({
-    spaceSize: 'Pequeno (Varanda)',
-    hasPets: false,
-    hasChildren: false
-  });
+    const [loading, setLoading] = useState(false);
+    const [aiAdvice, setAiAdvice] = useState(null);
+    const [userInfo, setUserInfo] = useState({
+        spaceSize: "Médio (Jardim)",
+        sunlight: "Sol Pleno",
+        skillLevel: "Iniciante"
+    });
 
-  // Note: removed example `gerarTexto()` because it referenced undefined
-  // variables (`model`, `prompt`) and could cause runtime/lint errors.
-
-  // Função para testar modelos disponíveis
-  const testAvailableModels = async () => {
-    try {
-      const apiKey = import.meta.env.VITE_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API;
-      if (!apiKey) {
-        console.error("Chave de API ausente");
-        return;
-      }
-      
-      const cleanKey = apiKey.trim();
-      const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${cleanKey}`;
-      
-      console.log("Listando modelos disponíveis...");
-      const response = await fetch(listUrl);
-      const data = await response.json();
-      
-      if (data.models && data.models.length > 0) {
-        console.log("✅ Modelos disponíveis:");
-        data.models.forEach(model => {
-          console.log(`  - ${model.name} (versão: ${model.version})`);
-        });
-        // Retorna o primeiro modelo disponível
-        const firstModel = data.models[0].name.split('/').pop();
-        console.log(`\n📌 Use este modelo: "${firstModel}"`);
-      } else {
-        console.error("Nenhum modelo encontrado. Verifique sua chave de API e permissões no Google Cloud.");
-      }
-    } catch (error) {
-      console.error("Erro ao listar modelos:", error);
-    }
-  };
-
-  const generateAIPlan = async () => {
-    if (selectedPlants.length === 0) return;
-    setLoading(true);
-    setAiAdvice(null);
-
-    // 1. Monte seu prompt com base no espaço selecionado
-    const spaceDescriptions = {
-      "Pequeno (Varanda)": "varanda",
-      "Médio (Jardim)": "jardim médio",
-      "Grande (Quintal)": "quintal grande"
-    };
-      let spaceDesc = spaceDescriptions[userInfo.spaceSize] || "";
-      if (!spaceDesc && userInfo.spaceSize) {
-        const key = userInfo.spaceSize.toString().toLowerCase();
-        if (key.includes('varanda') || key.includes('pequeno')) spaceDesc = 'varanda';
-        else if (key.includes('quintal') || key.includes('grande')) spaceDesc = 'quintal grande';
-        else if (key.includes('jardim') || key.includes('médio') || key.includes('medio')) spaceDesc = 'jardim médio';
-      }
-      if (!spaceDesc) spaceDesc = 'espaço';
-      console.log('Gerando plano — spaceSize key:', userInfo.spaceSize, '-> prompt description:', spaceDesc);
-    const promptFinal = `Crie um plano de jardinagem personalizado para um ${spaceDesc}.`;
-
-    try {
-      const apiKey = import.meta.env.VITE_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API;
-      if (!apiKey) throw new Error("Chave de API ausente. Verifique VITE_API_KEY ou VITE_GEMINI_API_KEY no .env");
-
-      const cleanKey = apiKey.trim();
-      const finalUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${cleanKey}`;
-
-      // Prepare a strict prompt: provide the available plants and selected plants, request JSON-only output
-      const availableNames = plantData.map(p => p.Nome).join(', ');
-      const selectedNames = selectedPlants.map(p => p.Nome).join(', ');
-      const userHasPets = userInfo.hasPets ? true : false;
-      const userHasChildren = userInfo.hasChildren ? true : false;
-      const spaceSize = userInfo.spaceSize;
-
-      // Add stricter constraints for very small spaces (varanda) so the model avoids trees and lawns
-      let extraSpaceConstraints = '';
-      const spaceKey = String(spaceSize || '').toLowerCase();
-      if (spaceKey.includes('varanda') || spaceKey.includes('pequeno')) {
-        extraSpaceConstraints = 'IMPORTANTE: O espaço é Pequeno (Varanda). NÃO sugira árvores, gramados/"grama" ou plantas que precisem ser plantadas diretamente no solo. Sugira apenas plantas em vasos, pendentes ou soluções compatíveis com varanda.';
-      }
-
-      const jsonInstruction = `Você é um assistente de paisagismo. Use APENAS plantas da lista fornecida. Disponíveis: ${availableNames}. Selecionadas: ${selectedNames}. ` +
-        `Informações do usuário: espaço=${spaceSize}, temPets=${userHasPets}, temCrianças=${userHasChildren}. ${extraSpaceConstraints} ` +
-        `ESTRUTURA DO JSON: { "project": { "overview": "texto curto", "placements": [{ "plant": "Nome", "location": "onde", "reason": "motivo", "watering": "frequência (ex: 2x por semana)", "fertilizing": "plano (ex: mensal com NPK 10-10-10)" }] }, "cautions": [{ "plant": "Nome (se tóxica)", "toxicity": "breve descrição", "safety_tip": "como usar com segurança (ex: colocar num local alto, longe de pets)" }], "alternatives": [{ "plant": "Nome", "reason": "por quê" }], "notes": "observações" }. Para cada planta SELECIONADA, inclua um plano específico de rega e adubagem baseado em suas necessidades. Se temPets ou temCrianças for true, NÃO coloque plantas tóxicas em 'placements'; coloque em 'cautions' com uma dica de segurança. Retorne apenas JSON, sem texto adicional.`;
-
-      const prompt = `${promptFinal}\n\n${jsonInstruction}`;
-
-      console.log("Chamando API (JSON prompt) em:", finalUrl);
-
-      const response = await fetch(finalUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-      });
-
-      if (!response.ok) {
-        const errText = await response.text().catch(() => null);
-        console.error("Erro da API:", response.status, errText || response.statusText);
-        throw new Error(`Erro API: ${response.status} - ${errText || response.statusText}`);
-      }
-
-      const data = await response.json();
-      const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      const cleaned = raw.replace(/```(?:json|text|\w*)\n?/g, '').trim();
-      console.log('Resposta bruta da IA:', cleaned);
-
-      // Tenta parsear JSON estrito
-      let parsed = null;
-      try {
-        parsed = JSON.parse(cleaned);
-      } catch (e) {
-        // tenta extrair o primeiro objeto JSON do texto
-        const match = cleaned.match(/\{[\s\S]*\}/);
-        if (match) {
-          try { parsed = JSON.parse(match[0]); } catch (_) { parsed = null; }
-        }
-      }
-
-      // Se conseguimos um JSON válido, construa HTML estruturado (projeto primeiro, depois alternativas)
-      if (parsed && typeof parsed === 'object') {
-        const projectPlacements = Array.isArray(parsed?.project?.placements) ? parsed.project.placements : (Array.isArray(parsed.suggestions) ? parsed.suggestions : []);
-        const projectOverview = parsed?.project?.overview || parsed.overview || '';
-        let alternatives = Array.isArray(parsed?.alternatives) ? parsed.alternatives.slice() : (Array.isArray(parsed.otherPlants) ? parsed.otherPlants.slice() : []);
-        const cautions = Array.isArray(parsed?.cautions) ? parsed.cautions.slice() : [];
-
-        const validPlants = new Set(plantData.map(p => p.Nome.toLowerCase()));
-        const selectedSet = new Set(selectedPlants.map(p => p.Nome.toLowerCase()));
-
-        // Only accept placements for plants the user explicitly selected. Ignore any placement
-        // the model added that is not part of the user's selection to avoid spurious suggestions.
-        let placements = projectPlacements.filter(s => s.plant && selectedSet.has(String(s.plant).toLowerCase()) && validPlants.has(String(s.plant).toLowerCase()));
-
-        // Check suitability: if the model marks a selected plant as unsuitable, move it to alternatives
-        // (if a valid replacement is provided) and add a caution entry. Keep cautions limited to
-        // plants relevant to the current selection/plan to avoid unrelated site-wide lists.
-        const finalPlacements = [];
-        const movedAlternatives = [];
-        for (const s of placements) {
-          const suitableFlag = (s.suitable !== undefined) ? s.suitable : (s.suitability !== undefined ? s.suitability : true);
-          if (suitableFlag === false || suitableFlag === 'no' || String(suitableFlag).toLowerCase() === 'não' || String(suitableFlag).toLowerCase() === 'nao') {
-            const repl = s.replacement || s.replacementPlant || s.replacement_name || s.suggested_alternative;
-            if (repl && typeof repl === 'string' && validPlants.has(repl.toLowerCase()) && !selectedSet.has(repl.toLowerCase())) {
-              movedAlternatives.push({ plant: repl, reason: `Substitui ${s.plant} por não ser adequado para o local` });
-            }
-            // add a caution only for this selected plant
-            cautions.push({ plant: s.plant, toxicity: '', safety_tip: `Não adequado para o local; considere substituir ou reposicionar.` });
-            continue;
-          }
-          finalPlacements.push(s);
-        }
-
-        placements = finalPlacements;
-        if (movedAlternatives.length > 0) alternatives = alternatives.concat(movedAlternatives);
-
-        // Post-process: ensure each placement is actually suitable for the selected space
-        // (e.g., block trees or gramados on 'Pequeno (Varanda)'). If not suitable, move to alternatives
-        // and add a targeted caution.
-        const spaceKeyNorm = String(userInfo.spaceSize || '').toLowerCase();
-        const spaceKeywordsMap = {
-          'varanda': ['apartamento', 'varanda', 'apartamento/varanda'],
-          'jardim': ['jardim'],
-          'quintal': ['quintal']
-        };
-
-        const getSpaceCategory = (key) => {
-          if (!key) return '';
-          const k = key.toLowerCase();
-          if (k.includes('varanda') || k.includes('pequeno')) return 'varanda';
-          if (k.includes('jardim') || k.includes('médio') || k.includes('medio')) return 'jardim';
-          if (k.includes('quintal') || k.includes('grande')) return 'quintal';
-          return '';
-        };
-
-        const selectedSpaceCat = getSpaceCategory(spaceKeyNorm);
-        const allowedKeywords = spaceKeywordsMap[selectedSpaceCat] || [];
-        const reMoved = [];
-        if (selectedSpaceCat) {
-          const newPlacements = [];
-          for (const s of placements) {
-            const plantName = String(s.plant || '').toLowerCase();
-            const plant = plantData.find(p => p.Nome.toLowerCase() === plantName);
-            let allowed = true;
-            if (plant && Array.isArray(plant.Espacos)) {
-              const esp = plant.Espacos.map(e => String(e).toLowerCase());
-              allowed = esp.some(e => allowedKeywords.some(k => e.includes(k)));
-            }
-            // if no explicit Espacos info, conservatively allow; otherwise enforce
-            if (!plant || !Array.isArray(plant.Espacos)) allowed = allowed !== false;
-
-            if (!allowed) {
-              // move to alternatives if not already
-              if (!alternatives.find(a => String(a.plant || '').toLowerCase() === plantName)) {
-                alternatives.push({ plant: plant ? plant.Nome : s.plant, reason: `Não compatível com o espaço selecionado (${userInfo.spaceSize}).` });
-              }
-              // add caution limited to this plant
-              cautions.push({ plant: plant ? plant.Nome : s.plant, toxicity: '', safety_tip: `Não adequado para ${userInfo.spaceSize}. Considere uma planta em vaso ou escolher outra espécie.` });
-              reMoved.push(s);
-            } else {
-              newPlacements.push(s);
-            }
-          }
-          placements = newPlacements;
-        }
-
-        let html = '';
-        html += `<h2 class="text-2xl font-bold text-emerald-900 mb-4">Seu Projeto Paisagístico</h2>`;
-        html += `<div class="ai-overview mb-6 p-4 bg-emerald-50/50 rounded-lg">${markdownToHtml(projectOverview)}</div>`;
-
-        // SEÇÃO 0: INCOMPATIBILIDADE COM TAMANHO DO ESPAÇO (mostrar primeiro)
-        const placementsSet = new Set(placements.map(p => String(p.plant).toLowerCase()));
-        const incompatibleWarnings = (Array.isArray(reMoved) ? reMoved : []).map(s => {
-          const plantName = String(s.plant || '').toLowerCase();
-          const plant = plantData.find(p => p.Nome.toLowerCase() === plantName);
-          return {
-            plant: plant ? plant.Nome : s.plant,
-            reason: plant && Array.isArray(plant.Espacos) 
-              ? `Disponível em: ${plant.Espacos.join(', ')}. Você selecionou: ${userInfo.spaceSize}.`
-              : `Não compatível com ${userInfo.spaceSize}.`
-          };
-        });
-
-        if (incompatibleWarnings.length > 0) {
-          html += `<div class="p-6 rounded-2xl bg-orange-50 border-2 border-orange-300 mb-6">
-            <h3 class="text-lg font-bold text-orange-900 mb-4 flex items-center gap-2">🚫 Plantas Incompatíveis com o Espaço</h3>
-            <div class="grid gap-3">`;
-          incompatibleWarnings.forEach(w => {
-            html += `<div class="p-4 rounded-lg bg-white border border-orange-200">
-              <strong class="text-orange-900">${w.plant}</strong>
-              <div class="text-sm text-orange-800 mt-1">${w.reason}</div>
-            </div>`;
-          });
-          html += `</div></div>`;
-        }
-
-        // SEÇÃO 1: PLANTAS ESCOLHIDAS COM REGA/ADUBAGEM (que se adequam ao espaço)
-        html += `<h3 class="text-xl font-bold text-emerald-900 mt-8 mb-4 border-b-2 border-emerald-500 pb-2">Plantas Escolhidas para o Projeto</h3>`;
-        if (placements.length === 0) {
-          html += `<div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800">Nenhuma planta válida foi posicionada. Tente ajustar sua seleção.</div>`;
-        } else {
-          html += '<div class="grid gap-4">';
-          placements.forEach((s) => {
-            const plantName = s.plant;
-            const plant = plantData.find(p => p.Nome.toLowerCase() === plantName.toLowerCase());
-            const img = plant ? getPlantImage(plant.Nome) : '';
-            const location = s.location || s.location?.toString() || '';
-            const reason = s.reason || '';
-            const watering = s.watering || '';
-            const fertilizing = s.fertilizing || '';
-
-            html += `<div class="flex gap-4 p-4 rounded-xl border-2 border-emerald-200 bg-emerald-50/30 shadow-sm">
-              <img src="${img}" alt="${plantName}" class="w-24 h-24 object-cover rounded-lg flex-shrink-0" onerror="this.src='https://placehold.co/120x90?text=Sem+foto'" />
-              <div class="flex-1">
-                <h4 class="font-black text-lg text-emerald-900">${plantName}</h4>
-                <div class="text-sm text-emerald-700 mt-2"><strong>📍 Posicionamento:</strong> ${location}</div>
-                <div class="text-sm text-emerald-700 mt-1"><strong>💡 Motivo:</strong> ${reason}</div>
-                ${watering ? `<div class="text-sm text-emerald-700 mt-2"><strong>💧 Rega:</strong> ${watering}</div>` : ''}
-                ${fertilizing ? `<div class="text-sm text-emerald-700 mt-1"><strong>🌱 Adubagem:</strong> ${fertilizing}</div>` : ''}
-              </div>
-            </div>`;
-          });
-          html += '</div>';
-        }
-
-        // SEÇÃO 2: PLANTAS ALTERNATIVAS SUGERIDAS
-        // Filter alternatives: must be valid plants, not selected, and compatible with the space
-        const removedSet = new Set((Array.isArray(reMoved) ? reMoved : []).map(r => String(r.plant || '').toLowerCase()));
-        const validAlternatives = (Array.isArray(alternatives) ? alternatives : []).filter(a => {
-          const plantName = String(a.plant || '').toLowerCase();
-          // Exclude if selected, incompatible with space, or removed due to incompatibility
-          if (!validPlants.has(plantName) || selectedSet.has(plantName) || removedSet.has(plantName)) return false;
-          // Check space compatibility for this alternative
-          const altPlant = plantData.find(p => p.Nome.toLowerCase() === plantName);
-          if (!altPlant || !Array.isArray(altPlant.Espacos)) return true; // if no Espacos info, conservatively allow
-          const altEspacos = altPlant.Espacos.map(e => String(e).toLowerCase());
-          const altAllowed = altEspacos.some(e => allowedKeywords.some(k => e.includes(k)));
-          return altAllowed;
-        });
-        if (validAlternatives.length > 0) {
-          html += `<h3 class="text-xl font-bold text-emerald-900 mt-8 mb-4 border-b-2 border-lime-500 pb-2">Outras plantas que podem se encaixar</h3>`;
-          html += '<div class="grid gap-3">';
-          validAlternatives.forEach(a => {
-            const plantName = a.plant;
-            const p = plantData.find(pp => pp.Nome.toLowerCase() === plantName.toLowerCase());
-            const img = p ? getPlantImage(p.Nome) : '';
-            html += `<div class="flex items-center gap-3 p-3 rounded-lg bg-lime-50/50 border border-lime-200"><img src="${img}" class="w-14 h-14 object-cover rounded-md flex-shrink-0" onerror="this.src='https://placehold.co/80x60?text=Sem'"/><div><strong class="text-emerald-900">${plantName}</strong><div class="text-sm text-emerald-700">${a.reason || ''}</div></div></div>`;
-          });
-          html += '</div>';
-        }
-
-        // SEÇÃO 3: ALERTAS DE TOXICIDADE (se aplicável)
-        // Include cautions for: placements, alternatives, selected plants, AND plants removed due to space incompatibility
-        const alternativesSet = new Set(validAlternatives.map(a => String(a.plant).toLowerCase()));
-        const finalCautions = (Array.isArray(cautions) ? cautions : []).filter(c => {
-          const cPlantLower = String(c.plant).toLowerCase();
-          // Include if relevant to placements, alternatives, selected plants, or space-incompatible plants (removedSet)
-          return selectedSet.has(cPlantLower) || placementsSet.has(cPlantLower) || alternativesSet.has(cPlantLower) || removedSet.has(cPlantLower);
-        });
-        if (finalCautions && finalCautions.length > 0) {
-          html += `<h3 class="text-lg font-bold text-rose-900 mt-8 mb-4 border-b-2 border-rose-500 pb-2">⚠️ Plantas Tóxicas - Dicas de Segurança</h3>`;
-          html += '<div class="grid gap-3">';
-          finalCautions.forEach(c => {
-            html += `<div class="p-4 rounded-lg bg-rose-50/70 border border-rose-300">
-              <strong class="text-rose-900">${c.plant}</strong>
-              <div class="text-sm text-rose-800 mt-2"><strong>Toxicidade:</strong> ${c.toxicity || ''}</div>
-              <div class="text-sm text-emerald-700 mt-2 bg-white/60 p-2 rounded"><strong>✓ Como usar com segurança:</strong> ${c.safety_tip || 'Posicione em local seguro.'}</div>
-            </div>`;
-          });
-          html += '</div>';
-        }
-
-        if (parsed.notes) html += `<h3 class="text-lg font-bold text-emerald-900 mt-8 mb-2">📝 Notas Finais</h3><div class="mt-2 text-sm text-emerald-700 bg-white/50 p-4 rounded-lg">${markdownToHtml(parsed.notes)}</div>`;
-
-        // sanitize result if possible
-        try {
-          const DOMPurify = (await import('dompurify')).default;
-          setAiAdvice(DOMPurify.sanitize(html));
-        } catch (e) {
-          console.warn('DOMPurify não disponível — servindo HTML sem sanitização. Instale dompurify para segurança.');
-          setAiAdvice(html);
-        }
-      } else {
-        // fallback: model didn't return JSON — convert whole text to HTML
-        const fallbackHtml = markdownToHtml(cleaned);
-        try {
-          const DOMPurify = (await import('dompurify')).default;
-          setAiAdvice(DOMPurify.sanitize(fallbackHtml));
-        } catch (e) {
-          setAiAdvice(fallbackHtml);
-        }
-      }
-
-    } catch (error) {
-      console.error("Falha na requisição:", error);
-      setAiAdvice(`Erro: ${error.message || 'Falha na requisição.'}`);
-      alert("Erro ao conectar. Verifique o console (F12).");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="space-y-8 animate-fadeIn pb-20">
-      <div className="bg-white/80 backdrop-blur-2xl rounded-3xl p-8 border border-white/50 shadow-2xl relative overflow-hidden">
+    const generatePlan = async () => {
+        if (selectedPlants.length === 0) return;
+        setLoading(true);
+        setAiAdvice(null);
         
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-300/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-300/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+        // 1. Monte seu prompt com base no espaço selecionado
+        const spaceDescriptions = {
+          "Pequeno (Varanda)": "varanda",
+          "Médio (Jardim)": "jardim médio",
+          "Grande (Quintal)": "quintal grande"
+        };
+        let spaceDesc = spaceDescriptions[userInfo.spaceSize] || "";
+        
+        // Fallback robusto se a string não bater exato
+        if (!spaceDesc && userInfo.spaceSize) {
+           const key = userInfo.spaceSize.toString().toLowerCase();
+           if (key.includes('varanda') || key.includes('pequeno')) spaceDesc = 'varanda';
+           else if (key.includes('quintal') || key.includes('grande')) spaceDesc = 'quintal grande';
+           else if (key.includes('jardim') || key.includes('médio') || key.includes('medio')) spaceDesc = 'jardim médio';
+        }
+        if (!spaceDesc) spaceDesc = 'espaço';
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-white/30 pb-6 relative z-10">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl text-white shadow-xl shadow-emerald-500/30">
-               <Home size={32} strokeWidth={2.5} />
-            </div>
-            <div>
-              <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-900 to-teal-800 tracking-tight">Seu Projeto</h2>
-              <p className="text-emerald-700 font-bold">Paisagismo Residencial Personalizado</p>
-            </div>
-          </div>
-          
-          {selectedPlants.length > 0 && !loading && !aiAdvice && (
-             <button onClick={generateAIPlan} className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg transition-all hover:shadow-emerald-500/40 hover:-translate-y-1">
-               <Sparkles size={20} className="text-yellow-200" />
-               Gerar Consultoria
-             </button>
-          )}
-        </div>
+        console.log('Gerando plano — spaceSize key:', userInfo.spaceSize, '-> prompt description:', spaceDesc);
 
-        {/* --- FORMULÁRIO DE ANÁLISE DE ESPAÇO --- */}
-        {selectedPlants.length > 0 && !aiAdvice && (
-            <div className="mb-8 p-6 bg-emerald-50/50 rounded-2xl border border-emerald-100">
-                <h3 className="text-emerald-800 font-bold mb-4 flex items-center gap-2">
-                    <Activity size={20} /> Personalize sua Análise
+        const promptFinal = `Crie um plano de jardinagem personalizado para um ${spaceDesc}.
+Tenho estas plantas selecionadas: ${selectedPlants.map(p => p.Nome).join(', ')}.
+Perfil do jardineiro: nível ${userInfo.skillLevel}, luz disponível: ${userInfo.sunlight}.
+
+Crie uma resposta EM JSON com a seguinte estrutura estrita:
+{
+  "title": "Título criativo para o jardim",
+  "summary": "Resumo curto e inspirador do projeto (max 2 frases)",
+  "placements": [
+    {
+       "plant": "Nome da Planta",
+       "location": "Onde plantar (ex: Fundo, Frente, Vaso)",
+       "reason": "Por que aqui? (Estética/Funcional)",
+       "care_tip": "Dica vital de cuidado"
+    }
+  ],
+  "cautions": [
+     "Aviso importante 1 (ex: planta tóxica ou invasora)",
+     "Aviso importante 2"
+  ]
+}
+
+Se houver plantas incompatíveis com o espaço (${spaceDesc}) ou temCrianças for true, NÃO coloque plantas tóxicas em 'placements'; coloque em 'cautions' com uma dica de segurança.
+Retorne apenas JSON, sem texto adicional.`;
+
+        const jsonInstruction = "Responda APENAS com o JSON válido, sem blocos de código markdown (```json ... ```). Comece com { e termine com }.";
+        const prompt = `${promptFinal}\n\n${jsonInstruction}`;
+
+        console.log("Chamando API (JSON prompt) em:", `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=...`);
+        // Nota: Em produção, NUNCA exponha a chave no front. Use um backend proxy.
+        const finalUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY || ''}`;
+        
+        try {
+            const apiKey = import.meta.env.VITE_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API;
+            if (!apiKey) throw new Error("Chave de API ausente. Verifique VITE_API_KEY ou VITE_GEMINI_API_KEY no .env");
+
+            const response = await fetch(finalUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            
+            if (!response.ok) {
+                const errText = await response.text().catch(() => null);
+                console.error("Erro da API:", response.status, errText || response.statusText);
+                throw new Error(`Erro na API (${response.status})`);
+            }
+
+            const data = await response.json();
+            console.log("Resposta bruta da API:", data);
+            
+            const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!rawText) throw new Error("API retornou resposta vazia.");
+
+            // Limpeza do JSON (caso venha com markdown)
+            const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+            const plan = JSON.parse(cleanJson);
+            
+            setAiAdvice(plan);
+        } catch (error) {
+            console.error("Erro ao gerar plano:", error);
+            setAiAdvice({
+                title: "Jardim Personalizado",
+                summary: "Não foi possível gerar o plano com IA agora, mas suas plantas são ótimas!",
+                placements: selectedPlants.map(p => ({
+                    plant: p.Nome,
+                    location: "A escolha é sua!",
+                    reason: "Ótima escolha.",
+                    care_tip: "Regue com carinho."
+                })),
+                cautions: ["Verifique a toxicidade das plantas se tiver pets ou crianças."]
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Função para renderizar o plano gerado
+    const renderPlan = () => {
+        if (!aiAdvice) return null;
+
+        // Verifica quais plantas selecionadas NÃO estão no plano (removidas pela IA por incompatibilidade)
+        const placements = aiAdvice.placements || [];
+        const recommendedNames = new Set(placements.map(p => String(p.plant).toLowerCase()));
+        
+        // Identificar plantas selecionadas que a IA ignorou/removeu
+        const reMoved = selectedPlants.filter(p => !recommendedNames.has(p.Nome.toLowerCase()));
+        
+        // Gerar alertas para plantas incompatíveis
+        const incompatibleWarnings = (Array.isArray(reMoved) ? reMoved : []).map(s => {
+             const plantName = String(s.plant || '').toLowerCase();
+             const plant = plantData.find(p => p.Nome.toLowerCase() === plantName);
+             return {
+                 plant: plant ? plant.Nome : s.plant,
+                 reason: plant && Array.isArray(plant.Espacos) ? `Disponível em: ${plant.Espacos.join(', ')}. Você selecionou: ${userInfo.spaceSize}.` : `Não compatível com ${userInfo.spaceSize}.`
+             };
+        });
+
+        // Construção do HTML do relatório
+        let html = `<div class="animate-in fade-in slide-in-from-bottom-4 duration-700">`;
+        
+        // Cabeçalho do Plano
+        html += `
+            <div class="text-center mb-10">
+                <div class="inline-block p-3 rounded-full bg-lime-100 text-lime-700 mb-4 shadow-sm border border-lime-200">
+                   <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h2 class="text-3xl font-black text-emerald-900 mb-3 tracking-tight">${aiAdvice.title}</h2>
+                <p class="text-lg text-emerald-700/80 max-w-2xl mx-auto leading-relaxed">${aiAdvice.summary}</p>
+            </div>
+        `;
+
+        // Alerta de Incompatibilidade (se houver)
+        if (incompatibleWarnings.length > 0) {
+            html += `<div class="p-6 rounded-2xl bg-orange-50 border-2 border-orange-300 mb-6">
+                <h3 class="text-lg font-bold text-orange-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    Atenção: Plantas Ajustadas
                 </h3>
-                <div className="flex flex-wrap gap-6">
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold text-emerald-700">Tamanho do Espaço</label>
-                        <select 
-                            value={userInfo.spaceSize}
-                            onChange={(e) => setUserInfo({...userInfo, spaceSize: e.target.value})}
-                            className="px-4 py-2 rounded-xl border-emerald-200 bg-white text-emerald-900 focus:ring-2 focus:ring-emerald-400 focus:outline-none"
-                        >
-                            <option value="Pequeno (Varanda)">Pequeno (Varanda)</option>
-                            <option value="Médio (Jardim)">Médio (Jardim)</option>
-                            <option value="Grande (Quintal)">Grande (Quintal)</option>
-                        </select>
+                <ul class="space-y-2">
+                    ${incompatibleWarnings.map(w => `<li class="text-orange-800 text-sm flex gap-2"><span class="font-bold">• ${w.plant}:</span> ${w.reason}</li>`).join('')}
+                </ul>
+            </div>`;
+        }
+
+        // Grid de Cards do Plano
+        html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">`;
+        
+        placements.forEach(item => {
+            html += `
+                <div class="bg-white/60 backdrop-blur-md rounded-2xl p-6 border border-emerald-100 shadow-sm hover:shadow-md transition-all">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="font-bold text-xl text-emerald-900">${item.plant}</h3>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded-lg uppercase tracking-wider">${item.location}</span>
                     </div>
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold text-emerald-700">Segurança</label>
-                        <div className="flex gap-4">
-                            <button 
-                                onClick={() => setUserInfo({...userInfo, hasPets: !userInfo.hasPets})}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${userInfo.hasPets ? 'bg-emerald-100 border-emerald-300 text-emerald-800 font-bold' : 'bg-white border-emerald-200 text-emerald-600'}`}
-                            >
-                                <PawPrint size={18} /> Tenho Pets
-                            </button>
-                            <button 
-                                onClick={() => setUserInfo({...userInfo, hasChildren: !userInfo.hasChildren})}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${userInfo.hasChildren ? 'bg-emerald-100 border-emerald-300 text-emerald-800 font-bold' : 'bg-white border-emerald-200 text-emerald-600'}`}
-                            >
-                                <Baby size={18} /> Tenho Crianças
-                            </button>
+                    <div class="space-y-3">
+                        <div class="flex gap-3">
+                             <div class="min-w-[4px] bg-lime-300 rounded-full"></div>
+                             <p class="text-sm text-emerald-800 leading-relaxed"><span class="font-bold text-emerald-900">Por que:</span> ${item.reason}</p>
+                        </div>
+                        <div class="flex gap-3">
+                             <div class="min-w-[4px] bg-sky-300 rounded-full"></div>
+                             <p class="text-sm text-emerald-800 leading-relaxed"><span class="font-bold text-emerald-900">Dica:</span> ${item.care_tip}</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        )}
+            `;
+        });
+        html += `</div>`;
 
-        {selectedPlants.length === 0 ? (
-           <div className="text-center py-24 bg-white/40 border-2 border-dashed border-emerald-200 rounded-3xl backdrop-blur-sm">
-             <div className="bg-white/80 p-5 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-md">
-                <Sprout size={40} className="text-emerald-500" />
-             </div>
-             <p className="text-emerald-900 text-2xl font-black">Comece seu Jardim</p>
-             <p className="text-emerald-700/70 text-lg">Selecione plantas no catálogo para ver a mágica acontecer.</p>
-           </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-            {selectedPlants.map(plant => (
-              <div key={plant.Nome} className="flex items-center bg-white/70 backdrop-blur-md p-4 rounded-2xl border border-white/60 shadow-lg relative group hover:shadow-xl hover:bg-white/90 transition-all hover:-translate-y-1">
-                <img src={getPlantImage(plant.Nome)} className="w-20 h-20 rounded-xl object-cover shadow-sm" alt={plant.Nome} onError={(e) => { e.target.src = `https://placehold.co/100x100/e2e8f0/1e293b?text=${encodeURIComponent(plant.Nome.charAt(0))}`; }} />
-                <div className="ml-4">
-                  <h4 className="font-black text-emerald-900 text-lg">{plant.Nome}</h4>
-                  <div className="flex gap-2 mt-1">
-                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wide bg-emerald-100 px-2 py-0.5 rounded-full">{plant["Luz Solar"]}</span>
-                  </div>
-                  {/* Alerta de Toxicidade no Card */}
-                  {plant.Tags.includes("Tóxica") && (
-                      <div className="flex items-center gap-1 mt-2 text-[10px] font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full w-fit">
-                          <AlertTriangle size={10} /> Tóxica
-                      </div>
-                  )}
+        // Seção de Cuidados Gerais (Cautions)
+        if (aiAdvice.cautions && aiAdvice.cautions.length > 0) {
+            html += `
+                <div class="bg-red-50/50 rounded-2xl p-6 border border-red-100">
+                    <h3 class="text-sm font-bold text-red-800 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Recomendações de Segurança
+                    </h3>
+                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        ${aiAdvice.cautions.map(c => `<li class="text-red-700/80 text-sm flex gap-2 items-start"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-400 shrink-0"></span>${c}</li>`).join('')}
+                    </ul>
                 </div>
-                <button onClick={() => onRemove(plant)} className="absolute top-2 right-2 text-red-400 hover:text-white hover:bg-red-500 transition-all p-2 rounded-xl">
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+            `;
+        }
+        
+        html += `</div>`;
+        return { __html: html }; // Retorna objeto para dangerouslySetInnerHTML
+    };
 
-        {loading && (
-          <div className="py-20 text-center bg-white/30 rounded-3xl">
-            <Loader size={56} className="animate-spin mx-auto text-emerald-600 mb-6" />
-            <h3 className="text-2xl font-black text-emerald-900">Planejando seu espaço...</h3>
-            <p className="text-emerald-700 font-medium">Avaliando segurança, insolação e composição visual.</p>
-          </div>
-        )}
+    return (
+        <div className="bg-white/40 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-white/50 relative overflow-hidden">
+            {/* ... Conteúdo do GardenPlan (formulário e renderização) ... */}
+            <div className="relative z-10">
+                <div className="text-center mb-10">
+                   <h2 className="text-3xl md:text-4xl font-black text-emerald-900 mb-4 tracking-tight">
+                       Seu Jardim dos Sonhos
+                   </h2>
+                   <p className="text-lg text-emerald-800/60 max-w-xl mx-auto">
+                       Configure seu perfil e deixe nossa IA organizar o plantio perfeito para você.
+                   </p>
+                </div>
 
-        {aiAdvice && (
-          <div className="bg-white/95 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/60 shadow-2xl animate-in fade-in slide-in-from-bottom-8">
-            <div className="flex items-center justify-between mb-8 pb-6 border-b border-emerald-100">
-               <h3 className="text-3xl font-black text-emerald-900 flex items-center gap-3">
-                 <div className="bg-emerald-100 p-3 rounded-2xl text-emerald-600"><Leaf size={28} /></div>
-                 Consultoria Técnica
-               </h3>
-               <button onClick={generateAIPlan} className="text-sm font-bold text-emerald-600 hover:text-emerald-800 flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-xl transition-colors hover:bg-emerald-100">
-                 Atualizar
-                 <ArrowRight size={16} />
-               </button>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-emerald-800 uppercase tracking-wider ml-1">Espaço</label>
+                        <select 
+                            value={userInfo.spaceSize}
+                            onChange={(e) => setUserInfo({...userInfo, spaceSize: e.target.value})}
+                            className="w-full bg-white/60 border border-white/60 rounded-xl px-4 py-3 text-emerald-900 focus:outline-none focus:ring-2 focus:ring-lime-400 font-medium"
+                        >
+                             <option>Pequeno (Varanda)</option>
+                             <option>Médio (Jardim)</option>
+                             <option>Grande (Quintal)</option>
+                        </select>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-emerald-800 uppercase tracking-wider ml-1">Iluminação</label>
+                        <select 
+                            value={userInfo.sunlight}
+                            onChange={(e) => setUserInfo({...userInfo, sunlight: e.target.value})}
+                            className="w-full bg-white/60 border border-white/60 rounded-xl px-4 py-3 text-emerald-900 focus:outline-none focus:ring-2 focus:ring-lime-400 font-medium"
+                        >
+                             <option>Sombra</option>
+                             <option>Meia Sombra</option>
+                             <option>Sol Pleno</option>
+                        </select>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-emerald-800 uppercase tracking-wider ml-1">Experiência</label>
+                        <select 
+                            value={userInfo.skillLevel}
+                            onChange={(e) => setUserInfo({...userInfo, skillLevel: e.target.value})}
+                            className="w-full bg-white/60 border border-white/60 rounded-xl px-4 py-3 text-emerald-900 focus:outline-none focus:ring-2 focus:ring-lime-400 font-medium"
+                        >
+                             <option>Iniciante</option>
+                             <option>Intermediário</option>
+                             <option>Especialista</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="flex justify-center mb-12">
+                    <button 
+                        onClick={generatePlan}
+                        disabled={loading || selectedPlants.length === 0}
+                        className="group relative bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 transition-all hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+                    >
+                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        <span className="relative flex items-center gap-2">
+                            {loading ? (
+                                <>
+                                    <Loader className="animate-spin" /> Gerando...
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles className="text-lime-300" /> Gerar Plano com IA
+                                </>
+                            )}
+                        </span>
+                    </button>
+                </div>
+            
+                {/* Resultado Renderizado */}
+                {aiAdvice && (
+                   <div dangerouslySetInnerHTML={renderPlan()} />
+                )}
             </div>
-            {/* WARNING: aiAdvice is rendered as HTML. Sanitize before rendering to avoid XSS. */}
-            {/* Consider installing DOMPurify and using: DOMPurify.sanitize(aiAdvice) */}
-            <div className="prose prose-emerald prose-lg max-w-none prose-headings:font-black prose-headings:text-emerald-900 prose-p:text-emerald-800 prose-p:font-medium prose-strong:text-emerald-950" dangerouslySetInnerHTML={{ __html: aiAdvice }} />
-          </div>
-        )}
-      </div>
-    </div>
-  );
+        </div>
+    );
 };
 
-// --- MAIN APP COMPONENT ---
-export default function PaisagismoIlheus() {
-  const [view, setView] = useState('catalog');
+// --- MAIN COMPONENT ---
+export default function FloraApp() {
+  const [search, setSearch] = useState('');
   const [selectedPlants, setSelectedPlants] = useState([]);
-  const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState({ espaco: "", luz: "", dificuldade: "", origem: "", grupo: "", frutifera: false });
+  const [filters, setFilters] = useState({
+    luz: '',
+    espaco: '',
+    dificuldade: '',
+    origem: '',
+    grupo: '',
+    frutifera: false
+  });
 
-  const luzOptions = useMemo(() => [...new Set(plantData.map(p => p["Luz Solar"]))], []);
-  const espacoOptions = ["Apartamento/Varanda", "Jardim (Médio)", "Quintal (Grande)"];
-  const dificuldadeOptions = ["Fácil", "Moderada", "Difícil"];
-  const origemOptions = ["Nativa", "Exótica"];
-  const grupoOptions = [...new Set(plantData.map(p => p.Grupo))];
-  
+  // --- LÓGICA DE FILTRAGEM E BUSCA ---
   const filteredPlants = useMemo(() => {
-    return plantData.filter(plant => {
-      const matchesSearch = plant.Nome.toLowerCase().includes(search.toLowerCase()) || plant.Tags.toLowerCase().includes(search.toLowerCase());
-      const matchesLuz = filters.luz ? plant["Luz Solar"] === filters.luz : true;
-      const matchesEspaco = filters.espaco ? plant.Espacos.includes(filters.espaco) : true;
-      const matchesDificuldade = filters.dificuldade ? plant.Dificuldade === filters.dificuldade : true;
-      const matchesOrigem = filters.origem ? plant.Origem === filters.origem : true;
-      const matchesGrupo = filters.grupo ? plant.Grupo === filters.grupo : true;
-      const matchesFrutifera = filters.frutifera ? plant.Frutifera === true : true;
+    let result = plantData.filter(plant => {
+        // Filtro de Texto (Nome ou Descrição)
+        const matchesSearch = 
+            plant["Nome"].toLowerCase().includes(search.toLowerCase()) ||
+            plant["Nome Científico"].toLowerCase().includes(search.toLowerCase()) ||
+            plant["Tags"].toLowerCase().includes(search.toLowerCase());
+
+        // Filtros de Categoria
+        const matchesLuz = filters.luz ? plant["Luz Solar"] === filters.luz : true;
         
-      return matchesSearch && matchesLuz && matchesEspaco && matchesDificuldade && matchesOrigem && matchesGrupo && matchesFrutifera;
+        // --- ALTERAÇÃO: Espaço agora NÃO remove a planta, apenas afeta a flag visual ---
+        // const matchesEspaco = filters.espaco ? plant.Espacos.includes(filters.espaco) : true; 
+        
+        const matchesDificuldade = filters.dificuldade ? plant["Dificuldade"] === filters.dificuldade : true;
+        const matchesOrigem = filters.origem ? plant["Origem"] === filters.origem : true;
+        const matchesGrupo = filters.grupo ? plant.Grupo === filters.grupo : true;
+        const matchesFrutifera = filters.frutifera ? plant.Frutifera === true : true;
+
+        return matchesSearch && matchesLuz && matchesDificuldade && matchesOrigem && matchesGrupo && matchesFrutifera;
     });
+
+    // --- ORDENAÇÃO INTELIGENTE ---
+    // Se um espaço estiver selecionado, joga as incompatíveis para o final da lista
+    if (filters.espaco) {
+        result.sort((a, b) => {
+            const aCompatible = a.Espacos.includes(filters.espaco);
+            const bCompatible = b.Espacos.includes(filters.espaco);
+            
+            if (aCompatible && !bCompatible) return -1; // a vem primeiro
+            if (!aCompatible && bCompatible) return 1;  // b vem primeiro
+            return 0;
+        });
+    }
+
+    return result;
   }, [search, filters]);
 
   const togglePlant = (plant) => {
@@ -1344,132 +1031,233 @@ export default function PaisagismoIlheus() {
         
         {/* --- SIDEBAR DE FILTROS --- */}
         <aside className="w-full md:w-80 shrink-0 bg-white/60 backdrop-blur-2xl border-r border-white/40 h-full overflow-y-auto custom-scrollbar flex flex-col shadow-2xl relative z-20">
-            <div className="p-6 pb-2">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl text-white shadow-lg shadow-emerald-500/30">
-                        <Home size={24} strokeWidth={2.5} />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-black text-emerald-900 tracking-tight leading-none">Flora Ilhéus</h1>
-                        <p className="text-xs text-emerald-700 font-bold uppercase tracking-wider mt-1">Paisagismo Urbano</p>
-                    </div>
-                </div>
-
-                {/* Busca */}
-                <div className="relative mb-6">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600" size={18} />
-                    <input type="text" placeholder="Buscar planta..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-11 pr-4 py-3 bg-white/70 border border-white/60 rounded-2xl focus:outline-none focus:border-lime-500 focus:bg-white text-emerald-900 placeholder-emerald-600/50 font-bold transition-all shadow-inner text-sm" />
-                </div>
-
-                <div className="h-px w-full bg-emerald-900/10 mb-6"></div>
-                
-                <h3 className="text-xs font-black text-emerald-900 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <Filter size={14} /> Filtros de Seleção
-                </h3>
+          <div className="p-6 pb-2">
+            <div className="flex items-center gap-3 mb-8">
+               <div className="bg-lime-400 p-2.5 rounded-2xl shadow-lg shadow-lime-300/50">
+                  <Leaf size={24} className="text-white" fill="currentColor" />
+               </div>
+               <div>
+                  <h1 className="text-2xl font-black text-emerald-900 leading-none tracking-tight">Flora</h1>
+                  <span className="text-xs font-bold text-emerald-600 tracking-[0.2em] uppercase">Ilhéus</span>
+               </div>
             </div>
 
-            <div className="px-6 space-y-5 pb-10">
-                <FilterSelect label="Tipo de Planta" icon={Leaf} options={[...new Set(plantData.map(p => p.Grupo))]} selected={filters.grupo} onChange={(val) => setFilters(prev => ({...prev, grupo: val}))} />
-                <FilterSelect label="Tamanho do Espaço" icon={Maximize} options={["Apartamento/Varanda", "Jardim (Médio)", "Quintal (Grande)"]} selected={filters.espaco} onChange={(val) => setFilters(prev => ({...prev, espaco: val}))} />
-                <FilterSelect label="Luz Solar" icon={Sun} options={[...new Set(plantData.map(p => p["Luz Solar"]))]} selected={filters.luz} onChange={(val) => setFilters(prev => ({...prev, luz: val}))} />
-                <FilterSelect label="Dificuldade" icon={Activity} options={["Fácil", "Moderada", "Difícil"]} selected={filters.dificuldade} onChange={(val) => setFilters(prev => ({...prev, dificuldade: val}))} />
-                <FilterSelect label="Origem" icon={Globe} options={["Nativa", "Exótica"]} selected={filters.origem} onChange={(val) => setFilters(prev => ({...prev, origem: val}))} />
-                
-                <FilterToggle label="Apenas Frutíferas" icon={Sprout} isActive={filters.frutifera} onToggle={() => setFilters(prev => ({...prev, frutifera: !prev.frutifera}))} />
-
-                <button onClick={() => {setFilters({luz:'', espaco:'', dificuldade:'', origem:'', grupo:'', frutifera: false}); setSearch('')}} className="w-full py-3 mt-4 text-xs font-bold uppercase tracking-widest text-emerald-600 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors border border-transparent hover:border-red-100 flex items-center justify-center gap-2">
-                    <X size={14} /> Limpar Filtros
-                </button>
+            <div className="relative mb-8 group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 group-focus-within:text-lime-500 transition-colors" size={20} />
+                <input 
+                    type="text" 
+                    placeholder="Buscar plantas..." 
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-white/50 border border-white/60 rounded-2xl text-emerald-900 placeholder:text-emerald-900/40 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all shadow-sm font-bold"
+                />
             </div>
+          </div>
+
+          <div className="px-6 flex-1 space-y-6">
+            <div className="space-y-4">
+               <h3 className="text-xs font-black text-emerald-900/40 uppercase tracking-widest px-1 flex items-center gap-2">
+                   <Filter size={12} /> Filtros
+               </h3>
+               
+               <FilterSelect label="Ambiente (Luz)" icon={Sun} options={["Sol Pleno", "Meia Sombra", "Sombra"]} selected={filters.luz} onChange={(v) => setFilters({...filters, luz: v})} />
+               <FilterSelect label="Espaço Disponível" icon={Maximize} options={["Apartamento/Varanda", "Jardim (Médio)", "Quintal (Grande)"]} selected={filters.espaco} onChange={(v) => setFilters({...filters, espaco: v})} />
+               <FilterSelect label="Nível de Cuidado" icon={Activity} options={["Fácil", "Moderada", "Difícil"]} selected={filters.dificuldade} onChange={(v) => setFilters({...filters, dificuldade: v})} />
+               <FilterSelect label="Origem" icon={Globe} options={["Nativa", "Exótica"]} selected={filters.origem} onChange={(v) => setFilters({...filters, origem: v})} />
+               <FilterSelect label="Tipo de Planta" icon={Sprout} options={["Árvore", "Arbusto", "Herbácea", "Trepadeira", "Palmeira", "Suculenta", "Gramado"]} selected={filters.grupo} onChange={(v) => setFilters({...filters, grupo: v})} />
+               
+               <label className="flex items-center gap-3 p-3 rounded-xl bg-white/40 border border-white/60 cursor-pointer hover:bg-white/60 transition-colors group">
+                   <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${filters.frutifera ? 'bg-lime-500 border-lime-500' : 'border-emerald-200 bg-white'}`}>
+                       {filters.frutifera && <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>}
+                   </div>
+                   <input type="checkbox" checked={filters.frutifera} onChange={(e) => setFilters({...filters, frutifera: e.target.checked})} className="hidden" />
+                   <span className="text-sm font-bold text-emerald-800 group-hover:text-emerald-900">Apenas Frutíferas</span>
+               </label>
+            </div>
+          </div>
+
+          <div className="p-6 mt-auto bg-white/30 border-t border-white/40 backdrop-blur-md">
+             <button onClick={() => {setFilters({luz: '', espaco: '', dificuldade: '', origem: '', grupo: '', frutifera: false}); setSearch('')}} className="w-full py-3 mt-4 text-xs font-bold uppercase tracking-widest text-emerald-600 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors border border-transparent hover:border-red-100 flex items-center justify-center gap-2">
+                 <X size={14} /> Limpar Filtros
+             </button>
+          </div>
         </aside>
 
         {/* --- CONTEÚDO PRINCIPAL --- */}
         <main className="flex-1 h-full overflow-y-auto relative custom-scrollbar">
             
             {/* --- CONTEÚDO PRINCIPAL (COM NOVO HEADER) --- */}
-          <div className="flex-1 h-full overflow-y-auto relative custom-scrollbar">
-    
-    {/* 1. NOVO CABEÇALHO HERO (Degradê + Vidro + Animação) */}
-    <header className="relative text-center pt-20 pb-10 px-4 max-w-5xl mx-auto overflow-hidden md:overflow-visible">
-        {/* Luz de Fundo (Glow) */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[600px] h-[300px] bg-emerald-400/20 blur-[100px] rounded-full -z-10 pointer-events-none" />
-
-        {/* Badge Glassmorphism */}
-        <div className="inline-flex items-center justify-center gap-2 mb-8 px-5 py-2 rounded-full border border-emerald-500/20 bg-white/40 backdrop-blur-md shadow-lg shadow-emerald-500/5 animate-fade-in-up">
-            <Leaf className="w-4 h-4 text-emerald-700" />
-            <span className="text-emerald-900 font-bold text-xs tracking-widest uppercase">Catálogo Digital</span>
-        </div>
-        
-        {/* Título Gigante com Degradê */}
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tighter leading-none animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-            <span className="bg-gradient-to-br from-emerald-950 via-emerald-600 to-teal-500 bg-clip-text text-transparent drop-shadow-sm">
-            Flora Ilhéus
-            </span>
-        </h1>
-        
-        {/* Subtítulo */}
-        <p className="text-xl md:text-2xl text-emerald-800/80 font-medium max-w-2xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-            Explore as melhores opções de plantas para o clima da nossa região.
-        </p>
-    </header>
-
-    {/* 2. MENU DE ABAS (STICKY) */}
-    <div className="sticky top-0 z-30 p-4 flex justify-center pointer-events-none">
-        <div className="flex gap-2 bg-white/95 p-1.5 rounded-2xl shadow-xl border border-white/50 pointer-events-auto">
-            <button 
-                onClick={() => setView('catalog')} 
-                className={`px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider transition-all shadow-sm ${view === 'catalog' ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30' : 'bg-transparent text-emerald-800 hover:bg-emerald-50'}`}
-            >
-                Catálogo
-            </button>
-            <button 
-                onClick={() => setView('design')} 
-                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider transition-all shadow-sm ${view === 'design' ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30' : 'bg-transparent text-emerald-800 hover:bg-emerald-50'}`}
-            >
-                Meu Jardim
-                {selectedPlants.length > 0 && <span className="bg-lime-400 text-emerald-900 text-[10px] px-2 py-0.5 rounded-full animate-pulse">{selectedPlants.length}</span>}
-            </button>
-        </div>
-    </div>
-
-    {/* 3. ÁREA DE CONTEÚDO (LISTA OU JARDIM) */}
-    <div className="px-4 md:px-10 pb-20">
-        {view === 'catalog' ? (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex-1 h-full overflow-y-auto relative custom-scrollbar">
                 
-                {/* Contador de plantas (Sem título repetido) */}
-                <div className="flex justify-end items-end mb-4">
-                    <span className="text-xs font-black text-emerald-900/40 uppercase tracking-widest bg-emerald-900/5 px-3 py-1 rounded-lg">
-                        {filteredPlants.length} plantas
-                    </span>
-                </div>
+                {/* 1. NOVO CABEÇALHO HERO (Degradê + Vidro + Animação) */}
+                <header className="relative text-center pt-20 pb-10 px-4 max-w-5xl mx-auto overflow-hidden md:overflow-visible">
+                    
+                    {/* Luz de Fundo (Glow) */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-lime-300/20 blur-[120px] rounded-full pointer-events-none z-0"></div>
 
-                {/* Grid de Plantas */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-                    {filteredPlants.map((plant) => (
-                    <PlantCard key={plant.Nome} plant={plant} isSelected={selectedPlants.some(p => p.Nome === plant.Nome)} onToggle={togglePlant} />
-                    ))}
-                </div>
-                
-                {/* Estado Vazio (Sem resultados) */}
-                {filteredPlants.length === 0 && (
-                    <div className="text-center py-32 bg-white/20 backdrop-blur-md rounded-[2.5rem] border-2 border-dashed border-white/40 flex flex-col items-center justify-center">
-                        <div className="bg-white/40 p-4 rounded-full mb-4">
-                            <Leaf size={40} className="text-emerald-400 opacity-50" />
-                        </div>
-                        <p className="text-emerald-900 text-2xl font-black mb-2">Nenhuma planta encontrada.</p>
-                        <p className="text-emerald-700/60 font-medium">Tente ajustar os filtros na barra lateral.</p>
+                    <div className="relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100/80 text-emerald-800 text-[10px] font-bold uppercase tracking-widest mb-6 border border-emerald-200/50 shadow-sm">
+                            <Sparkles size={12} className="text-lime-600" /> 
+                            Catálogo Digital 2024
+                        </span>
+                        <h2 className="text-5xl md:text-7xl font-black text-emerald-950 mb-6 tracking-tight leading-tight">
+                            Descubra a <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-lime-600">Flora Nativa</span>
+                        </h2>
+                        <p className="text-xl md:text-2xl text-emerald-800/70 max-w-2xl mx-auto font-medium leading-relaxed">
+                            Explore, filtre e planeje seu jardim ideal com plantas adaptadas ao clima de Ilhéus.
+                        </p>
                     </div>
-                )}
+                </header>
+
+                <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-16 pb-32">
+                    
+                    {/* LISTA DE PLANTAS */}
+                    <div id="catalogo">
+                        <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-2xl font-black text-emerald-900 flex items-center gap-2">
+                                <Flower className="text-lime-500" /> Plantas Disponíveis
+                                <span className="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded-full ml-2 align-middle">{filteredPlants.length}</span>
+                            </h3>
+                            <div className="text-xs font-bold text-emerald-600/60 uppercase tracking-widest hidden md:block">
+                                Mostrando resultados filtrados
+                            </div>
+                        </div>
+
+                        {filteredPlants.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredPlants.map((plant, index) => {
+                                    // Verifica compatibilidade individualmente para exibir aviso
+                                    const isSpaceCompatible = !filters.espaco || plant.Espacos.includes(filters.espaco);
+                                    
+                                    const isSelected = selectedPlants.find(p => p.Nome === plant.Nome);
+
+                                    return (
+                                        <div 
+                                            key={index} 
+                                            className={`group bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-sm border border-emerald-100/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden ${!isSpaceCompatible ? 'opacity-80 grayscale-[0.3]' : ''}`}
+                                        >
+                                            {/* --- AVISO DE INCOMPATIBILIDADE --- */}
+                                            {!isSpaceCompatible && (
+                                                <div className="absolute top-4 right-4 z-20 bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 border border-amber-200 shadow-sm animate-in fade-in">
+                                                    <AlertTriangle size={12} />
+                                                    Espaço Incompatível
+                                                </div>
+                                            )}
+
+                                            <div className="aspect-[4/3] rounded-2xl overflow-hidden mb-5 relative bg-emerald-50">
+                                                <img 
+                                                    src={getPlantImage(plant.Nome)} 
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                    alt={plant.Nome}
+                                                    onError={(e) => {
+                                                        e.target.src = `https://placehold.co/400x300/e2e8f0/1e293b?text=${encodeURIComponent(plant.Nome)}`;
+                                                    }}
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                                                    <p className="text-white text-sm font-medium line-clamp-2">{plant.Descrição}</p>
+                                                </div>
+                                                
+                                                {/* Botão de Adicionar (Overlay) */}
+                                                <div className="absolute top-3 right-3">
+                                                    <button 
+                                                        onClick={() => togglePlant(plant)}
+                                                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg ${isSelected ? 'bg-red-500 text-white rotate-90' : 'bg-white/30 text-white hover:bg-white hover:text-emerald-700 backdrop-blur-md'}`}
+                                                    >
+                                                        {isSelected ? <Minus size={18} /> : <Plus size={18} />}
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex-1 flex flex-col">
+                                                {/* 1. LINHA DE METADADOS: Grupo */}
+                                                <div className="flex flex-wrap gap-2 mb-4">
+                                                    <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg backdrop-blur-md border border-slate-200 bg-slate-100 text-slate-600 flex items-center gap-1 shadow-sm w-fit">
+                                                        <Leaf size={10} /> {plant.Grupo}
+                                                    </span>
+                                                </div>
+
+                                                {/* 2. LINHA DE TAGS FUNCIONAIS: Sol, Água */}
+                                                <div className="flex flex-wrap gap-2 mb-3">
+                                                    {plant["Luz Solar"] === "Sol Pleno" && <Tag text="☀️ Sol" color="bg-amber-100 text-amber-800 border-amber-200" />}
+                                                    {plant["Luz Solar"] === "Meia Sombra" && <Tag text="⛅ Meia Sombra" color="bg-orange-100 text-orange-800 border-orange-200" />}
+                                                    {plant["Luz Solar"] === "Sombra" && <Tag text="☁️ Sombra" color="bg-blue-100 text-blue-800 border-blue-200" />}
+                                                    <Tag text={`💧 ${plant["Necessidade de Água"]}`} color="bg-sky-100 text-sky-800 border-sky-200" />
+                                                </div>
+
+                                                <div className="mt-auto">
+                                                    <h4 className="font-black text-emerald-900 text-xl mb-1">{plant.Nome}</h4>
+                                                    <p className="text-xs font-serif italic text-emerald-600/70 mb-4">{plant["Nome Científico"]}</p>
+                                                    
+                                                    {/* Warning Tags (Tóxica, etc) */}
+                                                    <div className="flex flex-wrap gap-2 mt-2">
+                                                        {plant.Tags.includes("Tóxica") && (
+                                                            <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded-full border border-red-100">
+                                                                <AlertTriangle size={10} /> Tóxica
+                                                            </span>
+                                                        )}
+                                                        {plant.Origem === "Nativa" && (
+                                                            <span className="flex items-center gap-1 text-[10px] font-bold text-lime-700 bg-lime-100 px-2 py-1 rounded-full border border-lime-200">
+                                                                <Globe size={10} /> Nativa
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div className="py-20 text-center bg-white/20 backdrop-blur-md rounded-[2.5rem] border-2 border-dashed border-white/40 flex flex-col items-center justify-center">
+                                <div className="bg-white/40 p-4 rounded-full mb-4">
+                                    <Leaf size={40} className="text-emerald-400 opacity-50" />
+                                </div>
+                                <p className="text-emerald-900 text-2xl font-black mb-2">Nenhuma planta encontrada.</p>
+                                <p className="text-emerald-700/60 font-medium">Tente ajustar os filtros na barra lateral.</p>
+                            </div>
+                        )}
+                    </div>
+                
+                    {/* BARRA DE PLANEJAMENTO FLUTUANTE (Se houver selecionados) */}
+                    {selectedPlants.length > 0 ? (
+                        <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <GardenPlan selectedPlants={selectedPlants} onRemove={(p) => togglePlant(p)} />
+                        </div>
+                    ) : (
+                        <div className="hidden"></div>
+                    )}
+
+                    {/* LISTA DE PLANTAS SELECIONADAS (MINI-CARTÕES) */}
+                     {selectedPlants.length > 0 && (
+                        <div className="fixed bottom-0 right-0 p-4 w-full md:w-auto md:max-w-md z-40 pointer-events-none">
+                            <div className="bg-white/90 backdrop-blur-xl border border-emerald-100 p-4 rounded-3xl shadow-2xl pointer-events-auto max-h-[60vh] overflow-y-auto custom-scrollbar">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="font-bold text-emerald-900 text-sm uppercase tracking-wider flex items-center gap-2">
+                                        <Leaf size={14} className="text-lime-500"/> Minha Lista ({selectedPlants.length})
+                                    </h3>
+                                    <button onClick={() => setSelectedPlants([])} className="text-[10px] font-bold text-red-400 hover:text-red-600 uppercase tracking-wider">Limpar</button>
+                                </div>
+                                <div className="space-y-3">
+                                    {selectedPlants.map((plant, i) => (
+                                        <div key={i} className="flex items-center bg-white p-2 rounded-xl shadow-sm border border-slate-100 relative group">
+                                            <img src={getPlantImage(plant.Nome)} className="w-12 h-12 rounded-lg object-cover" alt="" />
+                                            <div className="ml-3">
+                                                <p className="text-sm font-bold text-emerald-900 leading-tight">{plant.Nome}</p>
+                                                <p className="text-[10px] text-emerald-600">{plant.Grupo}</p>
+                                            </div>
+                                            <button onClick={() => togglePlant(plant)} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-slate-300 hover:text-red-500 transition-colors">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                     )}
+
+                </div>
             </div>
-        ) : (
-            <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <GardenPlan selectedPlants={selectedPlants} onRemove={(p) => togglePlant(p)} />
-            </div>
-        )}
-    </div>
-</div>
-  </main>
+        </main>
       </div>
       
       <style>{`
@@ -1477,9 +1265,6 @@ export default function PaisagismoIlheus() {
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.2); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(16, 185, 129, 0.4); }
-        /* Typography overrides for the AI content */
-        .prose strong { color: #059669; font-weight: 800; }
-        .prose ul li { margin-bottom: 0.5em; }
       `}</style>
     </div>
   );
